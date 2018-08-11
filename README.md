@@ -35,8 +35,8 @@ First let's talk about what this script expects in order to function properly. T
 * The other option is to use an external i2c EEPROM memory such as the 24C64. SigmaDSPs are able to load frimware from an external i2c EEPROM into RAM on the condition that the EEPROM i2c address is known and the physical SELFBOOT pin on the DSP is tied high.
 
 There are some rules you need to follow in order for the script to work as intended:
-* The DSP in the SigmaStudio project __must__ be called *IC_1*
-* The i2c EEPROM in the SigmaStudio project (if present) __must__ be called *IC_2*
+* The DSP in the SigmaStudio project __must__ be called *IC 1*
+* The i2c EEPROM in the SigmaStudio project (if present) __must__ be called *IC 2*
 * DO NOT edit any of the exported files. The script depends on lines and spaces from the exported files. Editing any of the files may cause the script to malfunction.
   
   
@@ -64,9 +64,9 @@ My_Arduino_DSP_Project/
   ↳ [SS_projectName]/
     ↳ [SS_projectName].dspproj
     ↳ export
-      ↳ [SS_ProjectName]_IC1_PARAM.h
-      ↳ [SS_ProjectName]_IC1.h
-      ↳ [SS_ProjectName]_IC2.h
+      ↳ [SS_ProjectName]_IC_1_PARAM.h
+      ↳ [SS_ProjectName]_IC_1.h
+      ↳ [SS_ProjectName]_IC_2.h
       ↳ E2Prom.Hex                    
 ```
 
