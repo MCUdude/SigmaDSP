@@ -1,0 +1,79 @@
+#######################################
+# Syntax Coloring Map For SigmaDSP and
+# DSPEEPROM library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SigmaDSP	KEYWORD1
+DSPEEPROM	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+# SigmaDSP.h
+begin	KEYWORD2
+i2cClock	KEYWORD2
+reset	KEYWORD2
+ping	KEYWORD2
+mux	KEYWORD2
+demux	KEYWORD2
+gain	KEYWORD2
+volumeMono_slew	KEYWORD2
+volumeStereo_slew	KEYWORD2
+hardClip	KEYWORD2
+softClip	KEYWORD2
+dcSource	KEYWORD2
+sineSource	KEYWORD2
+squareSource	KEYWORD2
+sawtoothSource	KEYWORD2
+triangleSource	KEYWORD2
+audioDelay	KEYWORD2
+EQfirstOrder	KEYWORD2
+EQsecondOrder	KEYWORD2
+toneControl	KEYWORD2
+stateVariable	KEYWORD2
+compressorRMS	KEYWORD2
+compressorPeak	KEYWORD2
+
+# DSPEEPROM.h
+getFirmwareVersion	KEYWORD2
+writeFirmware	KEYWORD2
+
+#######################################
+
+# parameters.h
+parameters	LITERAL1
+
+filterType	LITERAL1
+peaking	KEYWORD3	 	RESERVED_WORD
+parametric	KEYWORD3	 	RESERVED_WORD
+lowShelf	KEYWORD3	 	RESERVED_WORD
+highShelf	KEYWORD3	 	RESERVED_WORD
+lowpass	KEYWORD3	 	RESERVED_WORD
+highpass	KEYWORD3	 	RESERVED_WORD
+bandpass	KEYWORD3	 	RESERVED_WORD
+bandstop	KEYWORD3	 	RESERVED_WORD
+butterworthLowpass	KEYWORD3	 	RESERVED_WORD
+butterworthHighpass	KEYWORD3	 	RESERVED_WORD
+besselLowpass	KEYWORD3	 	RESERVED_WORD
+besselHighpass	KEYWORD3	 	RESERVED_WORD
+
+phase	LITERAL1
+deg_0	KEYWORD3	 	RESERVED_WORD
+nonInverted	KEYWORD3	 	RESERVED_WORD
+deg_180	KEYWORD3	 	RESERVED_WORD
+inverted	KEYWORD3	 	RESERVED_WORD
+
+state	LITERAL1
+off	KEYWORD3	 	RESERVED_WORD
+on	KEYWORD3	 	RESERVED_WORD
+
+compressor	LITERAL1
+
+toneCtrl	LITERAL1
+
+equalizer	LITERAL1

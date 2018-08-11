@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- *
+ * This software is distributed in the hope that it will be useful,
+ * but is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * This software may only be used to program products purchased from
+ * Analog Devices for incorporation by you into audio products that
+ * are intended for resale to audio product end users. This software
+ * may not be distributed whole or in any part to third parties.
+ *
+ * Copyright © 2018 Analog Devices, Inc. All rights reserved.
+ */
+-->
+<!--NetList XML file-->
+<NetList>
+    <IC name=" IC 1 " type="DSPSigma100">
+        <Schematic>
+            <Algorithm name="ICSigma100In1" friendlyname="170x\140x input" cell="Input1 ">
+                <Link pin="O_C0_A0_P1_out" dir="out" link="Link0" />
+            </Algorithm>
+            <Algorithm name="StateVarAlg1" friendlyname="Low Freq State Varible" cell="StateVarFilter1 ">
+                <Link pin="I_C29_A0_P1_in" dir="in" link="Link0" />
+                <Link pin="O_C29_A0_P2_out" dir="out" link="Link2" />
+                <Link pin="O_C29_A0_P3_out" dir="out" link="Link3" />
+                <Link pin="O_C29_A0_P4_out" dir="out" link="Link4" />
+            </Algorithm>
+            <Algorithm name="monoMuxSwSlew1" friendlyname="Mono SW Slew" cell="Mux ">
+                <Link pin="I_C66_A0_P2_in" dir="in" link="Link2" />
+                <Link pin="I_C66_A0_P3_in" dir="in" link="Link3" />
+                <Link pin="I_C66_A0_P4_in" dir="in" link="Link4" />
+                <Link pin="O_C66_A0_P1_out" dir="out" link="Link1" />
+            </Algorithm>
+            <Algorithm name="SWGain1940DBAlg1" friendlyname="Gain (RC Slew)" cell="SW vol 1 ">
+                <Link pin="I_C17_A0_P1_in" dir="in" link="Link1" />
+                <Link pin="O_C17_A0_P2_out" dir="out" link="Link5" />
+            </Algorithm>
+            <Algorithm name="ICSigma100Out1" friendlyname="170x\140x output" cell="Output1 ">
+                <Link pin="I_C11_A0_P1_in" dir="in" link="Link5" />
+            </Algorithm>
+            <Algorithm name="ICSigma100Out2" friendlyname="170x\140x output" cell="Output2 ">
+                <Link pin="I_C13_A0_P1_in" dir="in" link="Link5" />
+            </Algorithm>
+        </Schematic>
+    </IC>
+</NetList>
