@@ -39,7 +39,7 @@
 #####################################################################
 
 
-$outputFile = "./DSP_Parameters.h"
+$outputFile = "./SigmaDSP_Parameters.h"
 $lf = [System.Environment]::NewLine
 
 function Find-File ($pattern) {
@@ -176,7 +176,7 @@ foreach ($line in $dspProgramContentSlice) {
     }
 
     if ($line -match "ADI_REG_TYPE R3_HWCONFIGURATION") {
-        $dspProgramData += "const unit8_t PROGMEM DSP_hardware_conf_data[HARDWARE_CONF_SIZE] = $lf{"
+        $dspProgramData += "const uint8_t PROGMEM DSP_hardware_conf_data[HARDWARE_CONF_SIZE] = $lf{"
     }
 
     if ($line -match "ADI_REG_TYPE R4_COREREGISTER") {
@@ -191,8 +191,8 @@ foreach ($line in $dspProgramContentSlice) {
         $dspProgramData += $line
     }
 
-    if ($line.StartsWith("}")) {
-        $dspProgramData += "}$lf"
+    if ($line.StartsWith("};")) {
+        $dspProgramData += "};$lf$lf"
     }
 
 
