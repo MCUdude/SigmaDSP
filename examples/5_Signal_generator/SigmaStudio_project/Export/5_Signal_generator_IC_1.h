@@ -13,6 +13,8 @@
  * may not be distributed whole or in any part to third parties.
  *
  * Copyright ©2018 Analog Devices, Inc. All rights reserved.
+ *
+ *
  */
 #ifndef __5_SIGNAL_GENERATOR_IC_1_H__
 #define __5_SIGNAL_GENERATOR_IC_1_H__
