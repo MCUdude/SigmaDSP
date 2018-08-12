@@ -137,16 +137,17 @@ BEGIN {
 
 
 
-
 # Extract relevant comments and macros
 echo -e "\x1B[0mExtract relevant macros from"
 echo -e "\x1B[1m$DSP_PARAM_FILE"
 echo -e "\x1B[31m"
 awk '
 {
+  sub("\r","") # Get rid of all CR characters from the input file
+  
   # Print out each module comment
   if ($0 ~ "/* Module.") 
-    printf("\n" $0)
+    printf("\n" $0 "\n")
   
   # Print every line where column two ends with _COUNT
   if ($2 ~ "._COUNT") 
@@ -158,8 +159,9 @@ awk '
   
   # Print every line where column two ends with _ADDR
   if ($2 ~ "._ADDR")  
-    printf($0)
+    printf($0 "\n")
 } ' "$DSP_PARAM_FILE" > temp2
+
 
 
 # Skip EEPROM array if file is not present
@@ -181,7 +183,9 @@ else
   
   {
     printf("const uint8_t PROGMEM DSP_eeprom_firmware[" NF-1 "] =\n{\n")
-    for(i = 1; i < NF; i++) {
+    for(i = 1; i < NF; i++) 
+    {
+      sub("\r","") # Get rid of all CR characters from the input file
       printf("%s", $i ", ")
     }
   }
@@ -191,6 +195,8 @@ else
   }' "$EEPROM_HEXFILE" > temp3
 }
 fi
+
+
 
 # Generate program data
 echo -e "\x1B[0mExtract and format arrays from:"
@@ -203,18 +209,20 @@ BEGIN {
 }
 
 {
+  sub("\r","\n") # Get rid of all CR characters from the input file
+  
   if (NR >= 28) # Start from line 28
   {
     # Print out relevant comments
     if ($0 ~ "/* DSP." || $0 ~"/* Register.")
-      printf("\n" $0)         
+      printf("\n" $0 "\n")         
     
     if ($2 == "PROGRAM_SIZE_IC_1")
-      printf("\n#define PROGRAM_SIZE " $3)
+      printf("#define PROGRAM_SIZE " $3 "\n")
       
     if ($2 == "PROGRAM_ADDR_IC_1")
     {
-      printf("#define PROGRAM_ADDR " $3)
+      printf("#define PROGRAM_ADDR " $3 "\n")
       printf("#define PROGRAM_REGSIZE 5\n\n")
     }
         
@@ -222,11 +230,11 @@ BEGIN {
       printf("const uint8_t PROGMEM DSP_program_data[PROGRAM_SIZE] = \n{\n")  
         
     if ($2 == "PARAM_SIZE_IC_1")
-      printf("\n#define PARAMETER_SIZE " $3)
+      printf("#define PARAMETER_SIZE " $3 "\n")
       
     if ($2 == "PARAM_ADDR_IC_1")
     {
-      printf("#define PARAMETER_ADDR " $3)
+      printf("#define PARAMETER_ADDR " $3 "\n")
       printf("#define PARAMETER_REGSIZE 4\n\n")
     }
     
@@ -243,7 +251,7 @@ BEGIN {
     
     if ($2 == "R3_HWCONFIGURATION_IC_1_SIZE")
     {
-      printf("\n#define HARDWARE_CONF_SIZE " $3)
+      printf("#define HARDWARE_CONF_SIZE " $3 "\n")
       printf("#define HARDWARE_CONF_ADDR 0x081C\n")
       printf("#define HARDWARE_CONF_REGSIZE 1\n\n")
     }
@@ -288,7 +296,6 @@ END {
 
 
 
-
 # Concatenate the four generated files and turn them into SigmaDSP_parameters.h
 echo -e "\x1B[0mConcatenating all temporary files into one..."
 awk '
@@ -299,7 +306,6 @@ awk '
 END {
 printf("\n#endif") 
 } ' "temp1" "temp2" "temp3" "temp4" > "$(dirname "$0")/SigmaDSP_parameters.h"
-
 
 
 
