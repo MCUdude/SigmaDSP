@@ -54,6 +54,7 @@ class SigmaDSP
     // DSP data write methods
     void safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished);
     void writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *data);
+    void writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data);
     void writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const uint8_t *data, uint8_t registerSize);
     
   private:

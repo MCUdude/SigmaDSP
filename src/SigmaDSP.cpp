@@ -992,7 +992,8 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, boo
 
 /***************************************
 Function: writeRegister()
-Purpose:  Sends data to the DSP
+Purpose:  Writes data to the DSP
+          (max 32 bytes due to i2c buffer size)
 Inputs:   uint16_t startMemoryAddress;   DSP memory address
           uint8_t length;                Number of bytes to write
           uint8_t *data;                 Data array to write
@@ -1002,13 +1003,14 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *da
 {
   uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
   uint8_t MSByte = memoryAddress >> 8;
+  uint8_t i;
 
   Wire.beginTransmission(_dspAddress); // Begin write
     
   Wire.write(MSByte); // Send high address
   Wire.write(LSByte); // Send low address
     
-  for(uint8_t i = 0; i < length; i++)
+  for(i = 0; i < length; i++)
     Wire.write(data[i]);  // Send all bytes in passed array
       
   Wire.endTransmission(); // Write out data to I2C and stop transmitting
@@ -1016,8 +1018,35 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *da
 
 
 /***************************************
+Function: writeRegister()
+Purpose:  Sends data to the DSP 
+          (max 32 bytes due to i2c buffer size)
+Inputs:   uint16_t startMemoryAddress;   DSP memory address
+          uint8_t length;                Number of bytes to write
+          const uint8_t *data;           Data array to write
+Returns:  None
+***************************************/
+void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data)
+{
+  uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
+  uint8_t MSByte = memoryAddress >> 8;
+  uint8_t i;
+  
+  Wire.beginTransmission(_dspAddress); // Begin write
+    
+  Wire.write(MSByte); // Send high address
+  Wire.write(LSByte); // Send low address
+    
+  for(i = 0; i < length; i++)
+    Wire.write(pgm_read_byte(&data[i]));  // Send all bytes in passed array
+      
+  Wire.endTransmission(); // Write out data to I2C and stop transmitting
+}
+
+
+/***************************************
 Function: writeRegisterBlock()
-Purpose:  Sends data to the DSP from PROGMEM
+Purpose:  Writes data to the DSP from PROGMEM
 Inputs:   uint16_t startMemoryAddress;   DSP memory address
           uint16_t length;               Number of bytes to write
           const uint8_t *data;           Data array to write
@@ -1029,19 +1058,19 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
   uint8_t MSByte = 0;
   uint8_t LSByte = 0;
   uint16_t bytesSent = 0;
+  uint8_t i;
   
   // Run until all bytes are sent
   while(bytesSent < length)
   {  
     // Convert address to 8-bit
     MSByte = memoryAddress >> 8;
-    LSByte = (uint8_t)memoryAddress & 0xFF;
-    
+    LSByte = (uint8_t)memoryAddress & 0xFF;  
     
     Wire.beginTransmission(_dspAddress);
     Wire.write(MSByte); // Send high address
     Wire.write(LSByte); // Send low address
-    for(uint8_t i = 0; i < registerSize; i++) // Send n bytes
+    for(i = 0; i < registerSize; i++) // Send n bytes
     {
       Wire.write(pgm_read_byte(&data[bytesSent])); 
       bytesSent++;
