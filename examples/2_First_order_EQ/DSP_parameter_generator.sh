@@ -129,10 +129,10 @@ BEGIN {
 {
   # Track down the DSP and EEPROM i2c addresses and convert them into 7-bit
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_1")
-    printf($1 " DSP_I2C_ADDRESS (%#01x >> 1) & 0xFE\n", $3)
+    printf($1 " DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
   
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")  
-    printf($1 " EEPROM_I2C_ADDRESS (%#01x >> 1) & 0xFE\n\n", $3)  
+    printf($1 " EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n\n", $3)  
 } ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > temp1
 
 

@@ -129,10 +129,10 @@ BEGIN {
 {
   # Track down the DSP and EEPROM i2c addresses and convert them into 7-bit
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_1")
-    printf($1 " DSP_I2C_ADDRESS (%#01x >> 1) & 0xFE\n", $3)
+    printf($1 " DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
   
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")  
-    printf($1 " EEPROM_I2C_ADDRESS (%#01x >> 1) & 0xFE\n\n", $3)  
+    printf($1 " EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n\n", $3)  
 } ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > temp1
 
 
@@ -286,11 +286,11 @@ END {
   printf("/* Run this function to load DSP firmware directly */\n")
   printf("void loadProgram(SigmaDSP &myDSP)\n")
   printf("{\n")
-  printf("  myDSP.writeRegisterBlock(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data, CORE_REGISTER_R0_REGSIZE);\n")
+  printf("  myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data);\n")
   printf("  myDSP.writeRegisterBlock(PROGRAM_ADDR, PROGRAM_SIZE, DSP_program_data, PROGRAM_REGSIZE);\n")
   printf("  myDSP.writeRegisterBlock(PARAMETER_ADDR, PARAMETER_SIZE, DSP_parameter_data, PARAMETER_REGSIZE);\n")
-  printf("  myDSP.writeRegisterBlock(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data, HARDWARE_CONF_REGSIZE);\n")
-  printf("  myDSP.writeRegisterBlock(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data, CORE_REGISTER_R4_REGSIZE);\n")
+  printf("  myDSP.writeRegister(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data);\n")
+  printf("  myDSP.writeRegister(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data);\n")
   printf("}\n\n")
 }' "$DSP_PROGRAM_FILE" > temp4
 
