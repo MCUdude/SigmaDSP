@@ -111,14 +111,16 @@ $paramContent = $paramContent -join $lf  | Out-String
 # Track down the DSP and EEPROM i2c addresses
 $addressLine = $dspProgramContent | 
     Where-Object {$_ -match "#define DEVICE_ADDR_IC_1" }
+$hexNumberIndex = $addressLine.LastIndexOf("x")
 
-$dspProgAddress = $addressLine[-1]
+$dspProgAddress = $addressLine.Substring($hexNumberIndex - 1, 4)
 
 if ($null -ne $eepromProgramFile) {
     $addressLine = $eepromProgramContent | 
         Where-Object {$_ -match "#define DEVICE_ADDR_IC_2" }
 
-    $eepromProgAddress = $addressLine[-1]
+    $hexNumberIndex = $addressLine.LastIndexOf("x")
+    $eepromProgAddress = $addressLine.Substring($hexNumberIndex - 1, 4)
     $eepromProgAddressLine = "#define EEPROM_I2C_ADDRESS ($eepromProgAddress >> 1) & 0xFE"
 }
 else {
