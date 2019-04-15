@@ -33,7 +33,7 @@ class SigmaDSP
     void volume_slew(uint16_t memoryAddress,       float dB, uint8_t slew = 12);
     void hardClip(uint16_t startMemoryAddress,     float highThreshold, float lowThreshold);
     void softClip(uint16_t startMemoryAddress,     float alpha);
-    void dcSource(uint16_t memoryAddress,          float value);
+    void dcSource(uint16_t memoryAddress,          float level);
     void sineSource(uint16_t memoryAddress,        float frequency);
     void squareSource(uint16_t memoryAddress,      float frequency);
     void sawtoothSource(uint16_t memoryAddress,    float frequency);
@@ -52,12 +52,30 @@ class SigmaDSP
     int32_t floatToInt(float value);
     
     // DSP data write methods
+    
+    template <typename Address, typename Data1, typename... DataN>
+    void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN);
+    
     void safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress, int32_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress, int16_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress, uint8_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress, float data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress, double data, bool finished);
     void writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *data);
     void writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data);
     void writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const uint8_t *data, uint8_t registerSize);
     
   private:
+    // Wrapper template functions for safeload template
+    template <typename Data1, typename... DataN>
+    inline void safeload_write_wrapper(const Data1 &data1, const DataN &...dataN);
+    template <typename Data1>
+    inline void safeload_write_wrapper(const Data1& data1);
+    // Wrapper template for safeload_writeRegister functions
+    template <typename Address, typename Data, typename Finished>
+    void safeload_writeValue(Address& regAddr, const Data &data, const Finished &finished);
+    
     // Math
     void linspace(float x1, float x2, float n, float *vect);
     
@@ -68,6 +86,9 @@ class SigmaDSP
     
     // Private variables
     uint8_t _safeload_count = 0; // Counter for safeload registers
+    
+    uint16_t _dspRegAddr; // Used by template safeload functions
+
 };
 
 

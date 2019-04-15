@@ -1,9 +1,9 @@
 #include "SigmaDSP.h"
 #include "Arduino.h"
 
-/*********************************************************
-**                    PUBLIC METHODS                    **
-*********************************************************/
+/*******************************************************************************************
+**                                      PUBLIC METHODS                                    **
+*******************************************************************************************/
 
 /***************************************
 Function: SigmaDSP()
@@ -108,13 +108,7 @@ void SigmaDSP::mux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfI
   // Index number is actually not needed, but kept for compatibility
   (void)numberOfIndexes;
   
-  // Create buffer to store the data
-  uint8_t storeData[5];
-  
-  // Convert and write block
-  intToFixed(index, storeData);
-  
-  safeload_writeRegister(startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, index);
 }
 
 
@@ -128,28 +122,19 @@ Returns:  None
 ***************************************/
 void SigmaDSP::demux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfIndexes)
 {
-  // Create buffer to store the data
-  uint8_t storeData[5];
   uint8_t i = 0;
   
   // Load leading zeros
   for(; i < index; i++)
-  {
-    floatToFixed(0, storeData);
-    safeload_writeRegister(startMemoryAddress++, storeData, false);
-  }
+    safeload_writeRegister(startMemoryAddress++, 0, false);
   
   // Load index
-  floatToFixed(1, storeData);
   i++;
-  safeload_writeRegister(startMemoryAddress++, storeData, (i == numberOfIndexes ? true: false));  
+  safeload_writeRegister(startMemoryAddress++, 1, (i == numberOfIndexes ? true: false));  
   
   // Load tailing zeros
   for(; i < numberOfIndexes; i++)
-  {
-    floatToFixed(0, storeData);
-    safeload_writeRegister(startMemoryAddress++, storeData, (i == numberOfIndexes-1 ? true: false));
-  }
+    safeload_writeRegister(startMemoryAddress++, 0, (i == numberOfIndexes-1 ? true: false));
 }
 
 
@@ -162,17 +147,11 @@ Inputs:   uint16_t startMemoryAddress; DSP memory address
 Returns:  None
 ***************************************/
 void SigmaDSP::gain(uint16_t startMemoryAddress, float gain, uint8_t channels)
-{
-  // Create buffer to store the data
-  uint8_t storeData[5];
-  
-  // Convert and write block
-  floatToFixed(gain, storeData);
-  
+{  
   for(uint8_t i = 0; i < channels - 1; i++)
-    safeload_writeRegister(startMemoryAddress++, storeData, false);
+    safeload_writeRegister(startMemoryAddress++, gain, false);
     
-  safeload_writeRegister(startMemoryAddress, storeData, true);
+  safeload_writeRegister(startMemoryAddress, gain, true);
 }
 
 
@@ -186,16 +165,10 @@ Returns:  None
 ***************************************/
 void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
 {
-  uint8_t storeData[5];
- 
   float volume = pow(10, dB / 20); // 10^(dB / 20)
   int32_t slewrate = 0x400000 / (1 << (slew - 1)); // 0x400000/2^(slew - 1))
   
-  floatToFixed(volume, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);
-  
-  intToFixed(slewrate, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, volume, slewrate);
 }
 
 
@@ -231,23 +204,11 @@ Inputs:   uint16_t startMemoryAddress; DSP memory address
 Returns:  None
 ***************************************/
 void SigmaDSP::softClip(uint16_t startMemoryAddress, float alpha)
-{
-  uint8_t storeData[5];
-  
+{  
   const float oneThird = 0.333;
   const float twoThird = 0.666;
-
-  floatToFixed(alpha, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);
   
-  floatToFixed(1/alpha, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  floatToFixed(oneThird, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  floatToFixed(twoThird, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, alpha, (float)1/alpha, oneThird, twoThird);
 }
 
 
@@ -255,15 +216,12 @@ void SigmaDSP::softClip(uint16_t startMemoryAddress, float alpha)
 Function: dcSource()
 Purpose:  This function controls a DC source cell
 Inputs:   uint16_t startMemoryAddress; DSP memory address
-          float value;                 DC value level range +/-1.0    
+          float level;                 DC value level range +/-1.0    
 Returns:  None
 ***************************************/ 
-void SigmaDSP::dcSource(uint16_t startMemoryAddress, float value)
+void SigmaDSP::dcSource(uint16_t startMemoryAddress, float level)
 {
-  uint8_t storeData[5];
-  
-  floatToFixed(value, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, level);
 }
 
 
@@ -277,17 +235,8 @@ Returns:  None
 void SigmaDSP::sineSource(uint16_t startMemoryAddress, float frequency)
 {
   float value = (1.00/24000.00)*frequency;
-
-  uint8_t storeData[5];
-
-  intToFixed(0xff, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);   // Mask
   
-  floatToFixed(value, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false); // Increment
-  
-  floatToFixed(1.0, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);  // On/off
+  safeload_write(startMemoryAddress, 0xff, value, 1.0);
 }
 
 
@@ -315,13 +264,7 @@ void SigmaDSP::sawtoothSource(uint16_t startMemoryAddress, float frequency)
 {
   float value = (0.50/24000.00)*frequency;
   
-  uint8_t storeData[5]; 
-
-  floatToFixed(value, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);  // Increment
-  
-  floatToFixed(1.0, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true); // On/off
+  safeload_write(startMemoryAddress, value, 1.0);
 }
 
 
@@ -335,29 +278,8 @@ Returns:  None
 void SigmaDSP::triangleSource(uint16_t startMemoryAddress, float frequency)
 {
   float value = (0.50/24000.00)*frequency;
-
-  uint8_t storeData[5];
   
-  floatToFixed(0.00, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);    // Triangle algorithm
-  
-  floatToFixed(1.00, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  floatToFixed(0.00, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  floatToFixed(-1.00, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  intToFixed(0x00000003, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false); // Mask
-  
-  floatToFixed(value, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false); // Increment
-  
-  floatToFixed(1.0, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);  // On/off
+  safeload_write(startMemoryAddress, 0.00, 1.00, 0.00, -1.00, 0x03, value, 1.00);
 }
 
 
@@ -388,17 +310,12 @@ design exceeds the maximum available.
 ***************************************/
 void SigmaDSP::audioDelay(uint16_t startMemoryAddress, float delayMs)
 {
-  uint32_t ticks = (uint32_t)(delayMs*0.001/(1/FS));
+  int32_t ticks = (int32_t)(delayMs*0.001/(1/FS));
   
   if(ticks > 2048) 
     ticks = 2048;
   
-  // Create buffer to store converted data
-  uint8_t storeData[5]; 
-   
-  // Convert and write block
-  intToFixed(ticks, storeData); 
-  safeload_writeRegister(startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, ticks);
 }
 
 
@@ -458,21 +375,7 @@ void SigmaDSP::EQfirstOrder(uint16_t startMemoryAddress, firstOrderEQ_t &equaliz
     coefficients[2] = 0.00;
   }
   
-  
-  // Create buffer to store converted data
-  uint8_t storeData[5]; 
-   
-  // Convert and write first block
-  floatToFixed(coefficients[0], storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);
-  
-  // Convert and write second block
-  floatToFixed(coefficients[1], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  // Convert and write third block
-  floatToFixed(coefficients[2], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, coefficients[0], coefficients[1], coefficients[2]);
 }
 
 
@@ -487,7 +390,7 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
 {
   float A, w0, alpha, gainLinear;
   float b0, b1, b2, a0, a1, a2;
-  float coefficients[4];
+  float coefficients[5];
 
   A=pow(10,(equalizer.boost/40));           // 10^(boost/40)
   w0=2*PI*equalizer.freq/FS;                // 2*PI*freq/FS
@@ -649,30 +552,8 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
     coefficients[3] = 0;
     coefficients[4] = 0;
   }
-
-
-  // Create buffer to store converted data
-  uint8_t storeData[5]; 
-   
-  // Convert and write first block
-  floatToFixed(coefficients[0], storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);
   
-  // Convert and write second block
-  floatToFixed(coefficients[1], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  // Convert and write third block
-  floatToFixed(coefficients[2], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  // Convert and write fourth block
-  floatToFixed(coefficients[3], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, false);
-  
-  // Convert and write fifth block
-  floatToFixed(coefficients[4], storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, coefficients[0], coefficients[1], coefficients[2], coefficients[3], coefficients[4]);
 }
 
  
@@ -687,7 +568,7 @@ void SigmaDSP::toneControl(uint16_t startMemoryAddress, toneCtrl_t &toneCtrl)
 {
   float tb,bb,wT,wB,Knum_T,Kden_T,Knum_B,Kden_B,alpha0,beta1,alpha1,beta2,alpha2,beta3,alpha3,beta4;
   float b0,b1,b2,a0,a1,a2;
-  float coefficients[4];
+  float coefficients[5];
 
   tb = pow(10, toneCtrl.boost_Treble_dB / 20.0);
   bb = pow(10, toneCtrl.boost_Bass_dB / 20.0);
@@ -781,18 +662,10 @@ void SigmaDSP::toneControl(uint16_t startMemoryAddress, toneCtrl_t &toneCtrl)
  */
 void SigmaDSP::stateVariable(uint16_t startMemoryAddress, float freq, float q)
 {
-  // Create buffer to store converted data
-  uint8_t storeData[5]; 
-  
   float param1 = 2*sin(PI*freq/FS);
   float param2 = 1/q;
-
-  // Convert and write
-  floatToFixed(param1, storeData);
-  safeload_writeRegister(startMemoryAddress, storeData, false);
   
-  floatToFixed(param2, storeData);
-  safeload_writeRegister(++startMemoryAddress, storeData, true);
+  safeload_write(startMemoryAddress, param1, param2);
 }
 
 
@@ -954,6 +827,16 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
 }
 
 
+template <typename Address, typename Data1, typename... DataN>
+void SigmaDSP::safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN)
+{
+  // Store passed address
+  _dspRegAddr = address;
+  
+  safeload_write_wrapper(data1, dataN...);
+}
+
+
 /***************************************
 Function: safeload_writeRegister()
 Purpose:  Writes 5 bytes of data to the parameter memory of the DSP, the first byte is 0x00
@@ -987,6 +870,97 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, boo
     writeRegister(0x081C, 2, buf); // IST (initiate safeload transfer bit)
     _safeload_count = 0;
   }
+}
+
+
+/***************************************
+Function: safeload_writeRegister()
+Purpose:  Writes 5 bytes of data to the parameter memory of the DSP, the first byte is 0x00
+Inputs:   uint16_t startMemoryAddress;   DSP memory address
+          int32_t data;                  Data to write
+          bool finished;                 Indicates if this is the last packet or not
+Returns:  None
+***************************************/
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, int32_t data, bool finished)
+{
+  // Divide 16 bit memory address into two bytes
+  uint8_t buf[2];
+  buf[0] = (memoryAddress >> 8) & 0xFF;
+  buf[1] = memoryAddress & 0xFF;
+  
+  // convert 32 bit integer data into four bytes
+  uint8_t dataArray[5];
+  intToFixed(data, dataArray);
+  
+  writeRegister(0x0815 + _safeload_count, 2, buf); // Load safeload address 0
+  
+  // Q: Why is the safeload registers five bytes long, while I'm loading four-byte parameters into the RAM using these registers?
+  // A: The safeload registers are also used to load the slew RAM data, which is five bytes long. For parameter RAM writes using safeload,
+  // the first byte of the safeload register can be set to 0x00.
+    
+  // Needs 5 bytes of data
+  writeRegister(0x0810 + _safeload_count, 5, dataArray); // Load safeload data 0
+  
+  _safeload_count++;
+  
+  if(finished == true || _safeload_count >= 5) // Max 5 safeload memory registers
+  {
+    buf[0] = 0x00;
+    buf[1] = 0x3C;
+    writeRegister(0x081C, 2, buf); // IST (initiate safeload transfer bit)
+    _safeload_count = 0;
+  }
+}
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, int16_t data, bool finished)
+{
+  safeload_writeRegister(memoryAddress, (int32_t)data, finished);
+}
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t data, bool finished)
+{
+  safeload_writeRegister(memoryAddress, (int32_t)data, finished);
+}
+
+/***************************************
+Function: safeload_writeRegister()
+Purpose:  Writes 5 bytes of data to the parameter memory of the DSP, the first byte is 0x00
+Inputs:   uint16_t startMemoryAddress;   DSP memory address
+          float data;                    Data to write
+          bool finished;                 Indicates if this is the last packet or not
+Returns:  None
+***************************************/
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, float data, bool finished)
+{
+  // Divide 16 bit memory address into two bytes
+  uint8_t buf[2];
+  buf[0] = (memoryAddress >> 8) & 0xFF;
+  buf[1] = memoryAddress & 0xFF;
+  
+  // convert 32 bit integer data into four bytes
+  uint8_t dataArray[5];
+  floatToFixed(data, dataArray);
+  
+  writeRegister(0x0815 + _safeload_count, 2, buf); // Load safeload address 0
+  
+  // Q: Why is the safeload registers five bytes long, while I'm loading four-byte parameters into the RAM using these registers?
+  // A: The safeload registers are also used to load the slew RAM data, which is five bytes long. For parameter RAM writes using safeload,
+  // the first byte of the safeload register can be set to 0x00.
+    
+  // Needs 5 bytes of data
+  writeRegister(0x0810 + _safeload_count, 5, dataArray); // Load safeload data 0
+  
+  _safeload_count++;
+  
+  if(finished == true || _safeload_count >= 5) // Max 5 safeload memory registers
+  {
+    buf[0] = 0x00;
+    buf[1] = 0x3C;
+    writeRegister(0x081C, 2, buf); // IST (initiate safeload transfer bit)
+    _safeload_count = 0;
+  }
+}
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, double data, bool finished)
+{
+  safeload_writeRegister(memoryAddress, (float)data, finished);
 }
 
 
@@ -1131,6 +1105,36 @@ int32_t SigmaDSP::floatToInt(float value)
 {
   // Convert float 5.23 to int 28.0
   return (value * ((int32_t)1 << 23));
+}
+
+
+/*******************************************************************************************
+**                                     PRIVATE METHODS                                    **
+*******************************************************************************************/
+
+/***************************************
+Helper templates in order to wrap
+safeload_write around
+safeload_writeRegister
+***************************************/
+template <typename Data1, typename... DataN>
+inline void SigmaDSP::safeload_write_wrapper(const Data1 &data1, const DataN &...dataN)
+{
+  safeload_writeValue(_dspRegAddr, data1, false);
+  safeload_write_wrapper(dataN...);  // Recursive call using pack expansion syntax
+}
+
+template <typename Data1>
+inline void SigmaDSP::safeload_write_wrapper(const Data1& data1)
+{
+  safeload_writeValue(_dspRegAddr, data1, true);
+}
+
+template <typename Address, typename Data, typename Finished>
+void SigmaDSP::safeload_writeValue(Address& regAddr, const Data &data, const Finished &finished)
+{  
+  safeload_writeRegister(regAddr, data, finished);
+  regAddr++;
 }
 
 
