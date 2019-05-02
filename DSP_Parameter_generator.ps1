@@ -258,11 +258,11 @@ $dspProgramData
 /* Run this function to load DSP firmware directly */
 void loadProgram(SigmaDSP &myDSP)
 {
-    myDSP.writeRegisterBlock(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data, CORE_REGISTER_R0_REGSIZE);
+    myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data, CORE_REGISTER_R0_REGSIZE);
     myDSP.writeRegisterBlock(PROGRAM_ADDR, PROGRAM_SIZE, DSP_program_data, PROGRAM_REGSIZE);
     myDSP.writeRegisterBlock(PARAMETER_ADDR, PARAMETER_SIZE, DSP_parameter_data, PARAMETER_REGSIZE);
-    myDSP.writeRegisterBlock(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data, HARDWARE_CONF_REGSIZE);
-    myDSP.writeRegisterBlock(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data, CORE_REGISTER_R4_REGSIZE);
+    myDSP.writeRegister(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data, HARDWARE_CONF_REGSIZE);
+    myDSP.writeRegister(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data, CORE_REGISTER_R4_REGSIZE);
 }
 #endif
 "
