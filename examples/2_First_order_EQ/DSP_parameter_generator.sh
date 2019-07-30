@@ -286,11 +286,11 @@ END {
   printf("/* Run this function to load DSP firmware directly */\n")
   printf("void loadProgram(SigmaDSP &myDSP)\n")
   printf("{\n")
-  printf("  myDSP.writeRegisterBlock(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data, CORE_REGISTER_R0_REGSIZE);\n")
+  printf("  myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data);\n")
   printf("  myDSP.writeRegisterBlock(PROGRAM_ADDR, PROGRAM_SIZE, DSP_program_data, PROGRAM_REGSIZE);\n")
   printf("  myDSP.writeRegisterBlock(PARAMETER_ADDR, PARAMETER_SIZE, DSP_parameter_data, PARAMETER_REGSIZE);\n")
-  printf("  myDSP.writeRegisterBlock(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data, HARDWARE_CONF_REGSIZE);\n")
-  printf("  myDSP.writeRegisterBlock(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data, CORE_REGISTER_R4_REGSIZE);\n")
+  printf("  myDSP.writeRegister(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data);\n")
+  printf("  myDSP.writeRegister(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data);\n")
   printf("}\n\n")
 }' "$DSP_PROGRAM_FILE" > temp4
 
