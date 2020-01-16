@@ -40,8 +40,8 @@ void setup()
 
   // dsp and ee supports re-mapping of the SDA and SCL signals, but
   // can only be done if the microcontroller supports it (ESP8266 for example)
-  dsp.begin(/* SDA, SCL */);
-  //ee.begin(/* SDA, SCL */);
+  dsp.begin(/* Wire, SDA, SCL */);
+  //ee.begin(/* Wire, SDA, SCL */);
 
   delay(2000);
 

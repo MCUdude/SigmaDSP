@@ -17,15 +17,19 @@ DSPEEPROM::DSPEEPROM(uint8_t i2cAddress, uint16_t kbitSize, int8_t ledPin)
   // An EEPROM with size larger than 9.3kB is recommended
   switch (_kbitSize)
   {
-    default:
     case 64:
+    default:
       _firmwareVersionAddress = 0x1FFF; // 8191 dec
+      break;
     case 128:
       _firmwareVersionAddress = 0x3FFF; // 16383 dec
+      break;
     case 256:
       _firmwareVersionAddress = 0x7FFF; // 32767 dec
+      break;
     case 512:
       _firmwareVersionAddress = 0xFFFF; // 65535 dec
+      break;
   }
 }
 
@@ -33,12 +37,38 @@ DSPEEPROM::DSPEEPROM(uint8_t i2cAddress, uint16_t kbitSize, int8_t ledPin)
 /***************************************
 Function: begin()
 Purpose:  Starts the i2c interface
-Inputs:   uint8_t sdaPin;  SDA pin (optional parameter)
-          uint8_t sclPin;  SCL pin (optional parameter)
+Inputs:   TwoWire Wire;    Wire object (optional parameter)
 Returns:  None
 ***************************************/
-void DSPEEPROM::begin(uint8_t sdaPin, uint8_t sclPin)
+void DSPEEPROM::begin(TwoWire &WireObject)
 {
+  // Store copy the passed object
+  _WireObject = WireObject;
+
+  Wire.begin();
+
+  // If LED is present
+  if(_ledPin >= 0)
+  {
+    pinMode(_ledPin, OUTPUT);
+    digitalWrite(_ledPin, LOW);
+  }
+}
+
+
+/***************************************
+Function: begin()
+Purpose:  Starts the i2c interface
+Inputs:   TwoWire Wire;    Wire object
+          uint8_t sdaPin;  SDA pin
+          uint8_t sclPin;  SCL pin
+Returns:  None
+***************************************/
+void DSPEEPROM::begin(TwoWire &WireObject, uint8_t sdaPin, uint8_t sclPin)
+{
+  // Store copy the passed object
+  _WireObject = WireObject;
+
   #ifdef __AVR__
     (void)sdaPin;
     (void)sclPin;
