@@ -40,6 +40,7 @@ class SigmaDSP
     void gain(uint16_t startMemoryAddress,         int8_t gainVal, uint8_t channels = 1) { gain(startMemoryAddress, (int32_t)gainVal, channels); }
 
     void volume_slew(uint16_t startMemoryAddress,  float dB,       uint8_t slew = 12);
+    void dynamicBass(uint16_t startMemoryAddress, float dB);
     void hardClip(uint16_t startMemoryAddress,     float highThreshold, float lowThreshold);
     void softClip(uint16_t startMemoryAddress,     float alpha);
     void dcSource(uint16_t startMemoryAddress,     float level);

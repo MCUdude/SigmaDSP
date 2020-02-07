@@ -210,6 +210,21 @@ void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
 
 
 /***************************************
+Function: dynamicBass()
+Purpose:  Controls the boost level of the dynamic bass block
+Inputs:   uint16_t startMemoryAddress; DSP memory address
+          float dB;                    Bass boost level in dB (0 - +20dB)
+Returns:  None
+***************************************/
+void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB)
+{
+  float boost = pow(10, -dB / 20); // 10^(-dB / 20)
+
+  safeload_write(startMemoryAddress, boost);
+}
+
+
+/***************************************
 Function: hardClip()
 Purpose:  Hard clip with separate negative
           and positive threshold
