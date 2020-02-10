@@ -111,6 +111,7 @@ class SigmaDSP
     void writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *data);
     void writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data);
     void writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const uint8_t *data, uint8_t registerSize);
+    int32_t readRegister(uint16_t address, uint16_t value, uint8_t length);
 
 
   private:

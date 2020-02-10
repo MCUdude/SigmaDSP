@@ -1026,6 +1026,44 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
 
 
 /***************************************
+Function: readRegster()
+Purpose:  reads a DSP register
+Inputs:   uint16_t startMemoryAddress;   DSP memory address
+          uint16_t readout;              what register to read
+          uint8_t numberOfBytes;         How manu bytes to read
+Returns:  int32_t value where bytes are concatenated
+***************************************/
+int32_t SigmaDSP::readRegister(uint16_t memoryAddress, uint16_t readout, uint8_t numberOfBytes)
+{
+  uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
+  uint8_t MSByte = memoryAddress >> 8;
+
+  _WireObject.beginTransmission(_dspAddress); // Begin write
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
+  LSByte = (uint8_t) readout & 0xFF;
+  MSByte = readout >> 8;
+  Wire.write(MSByte); // Send high register to read
+  Wire.write(LSByte); // Send low register to read
+  Wire.endTransmission();
+
+  Wire.beginTransmission(_DSP_i2cAddress);
+  LSByte = (uint8_t)memoryAddress & 0xFF;
+  MSByte = memoryAddress >> 8;
+  Wire.write(MSByte);
+  Wire.write(LSByte);
+  Wire.endTransmission(false);
+
+  int32_t returnVal = 0;
+  Wire.requestFrom(_DSP_i2cAddress, length);
+  for(uint8_t i = 0; i < length; i++)
+    returnVal = returnVal << 8 | Wire.read();
+
+  return returnVal;
+}
+
+
+/***************************************
 Function: floatTofixed()
 Purpose:  Converts a 5.23 float value to 5-byte HEX and stores it to a buffer
 Inputs:   float value;      Value to convert
