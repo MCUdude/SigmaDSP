@@ -35,48 +35,65 @@ set -e
 # script executable.                                                #
 #####################################################################
 
+# Print header
+clear
+echo -e "\n\x1B[7m   SIGMADSP SOURCE FILE GENERATOR SCRIPT    "
+echo -e "            Created by MCUdude              "
+echo -e "    https://github.com/MCUdude/SigmaDSP     \x1B[0m\n"
 
-# First parameter - Parameter file
-# Change the filename (*_IC_1_PARAM.h) if the script can't find the parameter file
-DSP_PARAM_FILE=$(find $(dirname "$0") -name "*_IC_1_PARAM.h")
+# Get Sigma studio project file name if present
+SIGMA_STUDIO_PROJECT_NAME=$((find $(dirname "$0") -name "*.dspproj") | awk '{sub(/.*\//,x)}1')
 
-# Second parameter - EEPROM hex file (must end with *rom.hex)
-# Change the filename (*rom.[Hh][Ee][Xx]) if the script can't find the parameter file
+# EEPROM program file (*_IC_2.h)
+EEPROM_PROGRAM_FILE=$(find $(dirname "$0") -name "*${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_2.h")
+if [ "$EEPROM_PROGRAM_FILE" = "" ]
+then
+  echo -e "\x1B[43m WARNING! ${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_2.h not found! "
+  FILE_ERROR=false
+fi
+
+# EEPROM hex file (must end with *rom.hex)
 EEPROM_HEXFILE=$(find $(dirname "$0") -name "*rom.[Hh][Ee][Xx]")
+if [ "$EEPROM_HEXFILE" = "" ]
+then
+  echo -e "\x1B[43m WARNING! [E2Prom.Hex] not found!           \r\n EEPROM loading not possible.               \x1B[0m"
+  FILE_ERROR=false
+fi
 
-# Third parameter - DSP program file
-# Change the filename (*_IC_1.h) if the script can't find the parameter file
-DSP_PROGRAM_FILE=$(find $(dirname "$0") -name "*_IC_1.h")
+# DSP parameter file (*_IC_1_PARAM.h) 
+DSP_PARAM_FILE=$(find $(dirname "$0") -name "*${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_1_PARAM.h")
+if [ "$DSP_PARAM_FILE" = "" ]
+then
+  echo -e "\x1B[101m ERROR! [${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_1_PARAM.h] not found! "
+  FILE_ERROR=true
+fi
 
-# Fourth parameter - EEPROM program file
-# Change the filename (*_IC_2.h) if the script can't find the parameter file
-EEPROM_PROGRAM_FILE=$(find $(dirname "$0") -name "*_IC_2.h")
+# DSP program file (*_IC_1.h)
+DSP_PROGRAM_FILE=$(find $(dirname "$0") -name "*${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_1.h")
+if [ "$DSP_PROGRAM_FILE" = "" ]
+then
+  echo -e "\x1B[101m ERROR! [${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_1.h] not found! "
+  FILE_ERROR=true
+fi
 
+# Throw error if mandatory files are missing
+if [ "$FILE_ERROR" = true ]
+then
+  echo -e "\x1B[0m"
+  exit 1
+fi
 
-# Check if all files are present or multiple files found. 
-# Print the missing file names, throw an error and stop script if true
-if [ "$EEPROM_PROGRAM_FILE" = "" ]; then echo -e "\x1B[43mWARNING! File [*_IC_2.h] not found!         "; FILE_ERROR=false;
-elif [[ "$EEPROM_PROGRAM_FILE" = *[[:space:]]/* ]]; then echo -e "\x1B[101mMultiple [*_IC_2.h] files found!"; FILE_ERROR=true; fi
-if [ "$EEPROM_HEXFILE" = "" ]; then echo -e "\x1B[43mWARNING! File [E2Prom.Hex] not found!\nEEPROM loading not possible.                "; FILE_ERROR=false;
-elif [[ "$EEPROM_HEXFILE" = *[[:space:]]/* ]]; then echo -e "\x1B[101mMultiple [*rom.[Hh][Ee][Xx]] files found!"; FILE_ERROR=true; fi
-if [ "$DSP_PARAM_FILE" = "" ]; then echo -e "\x1B[101mFile [*_IC_1_PARAM.h] not found!"; FILE_ERROR=true;
-elif [[ "$DSP_PARAM_FILE" = *[[:space:]]/* ]]; then echo -e "\x1B[101mMultiple [*_IC_1_PARAM.h] files found"; FILE_ERROR=true; fi
-if [ "$DSP_PROGRAM_FILE" = "" ]; then echo -e "\x1B[101mFile [*_IC_1.h] not found!"; FILE_ERROR=true;
-elif [[ "$DSP_PROGRAM_FILE" = *[[:space:]]/* ]]; then echo -e "\x1B[101mMultiple [*_IC_1.h] files found!"; FILE_ERROR=true; fi
-if [ "$FILE_ERROR" = true ]; then echo -e "\x1B[0m"; exit; fi
 
 
 # Choose the DSP macros we need in order to control the program modules
 echo -e "\x1B[0m"
-echo -e "\x1B[7m\n   SIGMADSP SOURCE FILE GENERATOR SCRIPT    \n"
-echo -e "\x1B[0mBuilding header..."
+echo -e "Building header..."
 echo -e "\x1B[0mExtracting i2c address macros from"
 echo -e "\x1B[1m$DSP_PROGRAM_FILE"
 echo -e "\x1B[1m$EEPROM_PROGRAM_FILE"
 echo -e "\x1B[31m"
-awk -v timestamp="$(date +%d.%m.%Y\ %H:%M:%S)" '
+awk -v timestamp="$(date +%d.%m.%Y\ %H:%M:%S)" -v ss_project_file="$SIGMA_STUDIO_PROJECT_NAME" '
 BEGIN {
-
   # Add guards
   printf("#ifndef SIGMADSP_PARAMETERS_H\n")
   printf("#define SIGMADSP_PARAMETERS_H\n\n")
@@ -86,20 +103,22 @@ BEGIN {
   
   # Print header
   printf("/****************************************************************************\n")
-  printf("| File name: SigmaDSP_parameters.h                                          |\n")
+  printf("| Filename: SigmaDSP_parameters.h                                           |\n")
   printf("| Generation tool: AWK + bash                                               |\n")
-  printf("| Date and time: %s                                        |\n"      , timestamp)
+  printf("| Date and time: %s                                        |\n",       timestamp)
+  printf("| Generated from: %s",                                           ss_project_file)
+  for(c = 0; c < (58 - length(ss_project_file)); c++) printf(" ");            printf("|\n")
   printf("|                                                                           |\n")
   printf("| ADAU1701 parameter and program file header                                |\n")
-  printf("| SigmaDSP library and its content is developed and maintained by MCUdude.  |\n")
+  printf("| SigmaDSP library and its content are developed and maintained by MCUdude. |\n")
   printf("| https://github.com/MCUdude/SigmaDSP                                       |\n")
   printf("|                                                                           |\n")
   printf("| Huge thanks to the Aida DSP team who have reverse engineered a lot of the |\n")
-  printf("| Sigma DSP algorithms and made them open source and available to everyone. |\n")
+  printf("| Sigma DSP algorithms and made them open-source and available to everyone. |\n")
   printf("| This library would never have existed if it wasn\x27t for the Aida DSP team  |\n")
   printf("| and their incredible work.                                                |\n")
   printf("|                                                                           |\n")
-  printf("| This file have been generated with the Sigmastudio_parameter_generator.sh |\n")
+  printf("| This file has been generated with the Sigmastudio_parameter_generator.sh  |\n")
   printf("| script. This file contains all the DSP function block parameters and      |\n")
   printf("| addresses. It also contains the program that will be loaded to the        |\n")
   printf("| external EEPROM.                                                          |\n")
@@ -108,10 +127,13 @@ BEGIN {
   printf("| module takes.                                                             |\n")
   printf("|                                                                           |\n")
   printf("| The *_ADDR macro holds the current address for the module. Use this macro |\n")
-  printf("| when changing the behaviour of the modules (EQs, volume etc.).            |\n")
+  printf("| when changing the behavior of the modules (EQs, volume, etc.).            |\n")
   printf("|                                                                           |\n")
   printf("| The *_FIXFT macros holds the default value of the module. Use this when   |\n")
   printf("| restoring the default parameters.                                         |\n")
+  printf("|                                                                           |\n")
+  printf("| The *_VALUES macros holds the address of what module to read from if      |\n")
+  printf("| you are using the readout blocks.                                         |\n")
   printf("|                                                                           |\n")
   printf("| The DSP_eeprom_firmware[] array contains the DSP firmware, and can be     |\n")
   printf("| loaded using the writeFirmware method in the DSPEEPROM class.             |\n")
@@ -132,8 +154,13 @@ BEGIN {
     printf($1 " DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
   
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")  
-    printf($1 " EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n\n", $3)  
-} ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > temp1
+    printf($1 " EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
+}
+
+END {
+  printf("\n// Define readout macro as empty\n")
+  printf("#define SIGMASTUDIOTYPE_SPECIAL(x) (x)\n\n")
+} ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > "$(dirname "$0")/SigmaDSP_parameters.h"
 
 
 
@@ -148,27 +175,29 @@ awk '
   # Print out each module comment
   if ($0 ~ "/* Module.") 
     printf("\n" $0 "\n")
-  
+
   # Print every line where column two ends with _COUNT
-  if ($2 ~ "._COUNT") 
+  if ($2 ~ "._COUNT$")
     printf($0 "\n\n")
-  
-  # Print every line where column two ends with _FIXPT
-  if ($2 ~ "._FIXPT") 
-    printf($0 "\n\n")
-  
+
   # Print every line where column two ends with _ADDR
-  if ($2 ~ "._ADDR")  
+  if ($2 ~ "._ADDR$")  
     printf($0 "\n")
-} ' "$DSP_PARAM_FILE" > temp2
+
+  # Print every line where column two ends with _VALUES
+  if ($2 ~ "._VALUES$") 
+    printf($0 "\n")
+
+  # Print every line where column two ends with _FIXPT
+  if ($2 ~ "._FIXPT$") 
+    printf($0 "\n\n")
+} ' "$DSP_PARAM_FILE" >> "$(dirname "$0")/SigmaDSP_parameters.h"
 
 
 
 # Skip EEPROM array if file is not present
-if [ "$EEPROM_HEXFILE" == "" ]; then 
-  awk '' > temp3
-else  
-{
+if [ "$EEPROM_HEXFILE" != "" ]
+then  
   # Generate C style array out from passed hex file
   echo -e "\x1B[0mExtract and format EEPROM array from"
   echo -e "\x1B[1m$EEPROM_HEXFILE"
@@ -178,11 +207,12 @@ else
     FS=" * , *"
     RS="^$"  
     printf("\n\n")
-    printf("/* This array contains the entire DSP program,\nand should be loaded into the external i2c EEPROM */\n")
+    printf("/* This array contains the entire DSP program,\nand should be loaded into the external i2c EEPROM */\n\n")
   }
   
   {
-    printf("const uint8_t PROGMEM DSP_eeprom_firmware[" NF-1 "] =\n{\n")
+    printf("#define EEPROM_SIZE " NF-1 "\n\n")
+    printf("const uint8_t PROGMEM DSP_eeprom_firmware[EEPROM_SIZE] =\n{\n")
     for(i = 1; i < NF; i++) 
     {
       sub("\r","") # Get rid of all CR characters from the input file
@@ -192,8 +222,7 @@ else
 
   END {
     printf("\n};")
-  }' "$EEPROM_HEXFILE" > temp3
-}
+  }' "$EEPROM_HEXFILE" >> "$(dirname "$0")/SigmaDSP_parameters.h"
 fi
 
 
@@ -292,27 +321,13 @@ END {
   printf("  myDSP.writeRegister(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data);\n")
   printf("  myDSP.writeRegister(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data);\n")
   printf("}\n\n")
-}' "$DSP_PROGRAM_FILE" > temp4
+  printf("#endif\n")
+}' "$DSP_PROGRAM_FILE" >> "$(dirname "$0")/SigmaDSP_parameters.h"
 
 
-
-# Concatenate the four generated files and turn them into SigmaDSP_parameters.h
-echo -e "\x1B[0mConcatenating all temporary files into one..."
-awk '
-{
-  printf($0 "\n")
-}
-
-END {
-printf("\n#endif") 
-} ' "temp1" "temp2" "temp3" "temp4" > "$(dirname "$0")/SigmaDSP_parameters.h"
-
-
-
-# Remove temp files
-echo -e "\x1B[0mDeleting all temporary files..."
-rm temp1 temp2 temp3 temp4
 
 # Echo finish
-echo -e "\x1B[7m\n                   DONE                    \n"
-echo -e "\x1B[0m"
+echo -e "\x1B[0m\x1B[1mSigmaDSP_parameters.h created!"
+echo -e "\n\x1B[7m                   DONE                    \x1B[0m\n"
+
+exit 0
