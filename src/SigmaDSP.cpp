@@ -1047,7 +1047,7 @@ int32_t SigmaDSP::readRegister(uint16_t memoryAddress, uint16_t readout, uint8_t
   Wire.write(LSByte); // Send low register to read
   Wire.endTransmission();
 
-  Wire.beginTransmission(_DSP_i2cAddress);
+  Wire.beginTransmission(_dspAddress);
   LSByte = (uint8_t)memoryAddress & 0xFF;
   MSByte = memoryAddress >> 8;
   Wire.write(MSByte);
@@ -1055,8 +1055,8 @@ int32_t SigmaDSP::readRegister(uint16_t memoryAddress, uint16_t readout, uint8_t
   Wire.endTransmission(false);
 
   int32_t returnVal = 0;
-  Wire.requestFrom(_DSP_i2cAddress, length);
-  for(uint8_t i = 0; i < length; i++)
+  Wire.requestFrom(_dspAddress, numberOfBytes);
+  for(uint8_t i = 0; i < numberOfBytes; i++)
     returnVal = returnVal << 8 | Wire.read();
 
   return returnVal;
