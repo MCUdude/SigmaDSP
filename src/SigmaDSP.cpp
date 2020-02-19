@@ -363,9 +363,6 @@ Delay ranges:
 0.0-42.6ms  (ADAU170x) @ 48kHz
 0.0-21.3ms  (ADAU170x) @ 96kHz
 0.0-10.6ms  (ADAU170x) @ 192kHz
-0.0-170.6ms (ADAU140x) @ 48kHz
-0.0-85.3ms  (ADAU140x) @ 96kHz
-0.0-42.6ms  (ADAU140x) @ 192kHz
 
 WARNING!!! Delays calculated are theoretical assuming you
 have 100% data memory available in your Sigma Studio design.
@@ -874,6 +871,56 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
 }
 
 
+/***************************************
+Function: muteADC()
+Purpose:  Mutes the internal ADC in the DSP
+Inputs:   bool mute;   True if muted, false if unmuted
+Returns:  None
+***************************************/
+void SigmaDSP::muteADC(bool mute)
+{
+  // Read two bytes from the DSP core register
+  uint16_t coreRegister = readRegister(dspRegister::CoreRegister, 2);
+
+  uint8_t muteADCdata[2];
+
+  muteADCdata[0] = (coreRegister >> 8) & 0xFF;
+
+  // Set or clear only the DAC mute/unmute bit
+  if(mute == true)
+    muteADCdata[1] = coreRegister & 0xEF;
+  else
+    muteADCdata[1] = coreRegister | 0x10;
+
+  writeRegister(dspRegister::CoreRegister, sizeof(muteADCdata), muteADCdata);
+}
+
+
+/***************************************
+Function: muteDAC()
+Purpose:  Mutes the internal DAC in the DSP
+Inputs:   bool mute;   True if muted, false if unmuted
+Returns:  None
+***************************************/
+void SigmaDSP::muteDAC(bool mute)
+{
+  // Read two bytes from the DSP core register
+  uint16_t coreRegister = readRegister(dspRegister::CoreRegister, 2);
+
+  uint8_t muteDACdata[2];
+
+  muteDACdata[0] = (coreRegister >> 8) & 0xFF;
+
+  // Set or clear only the DAC mute/unmute bit
+  if(mute == true)
+    muteDACdata[1] = coreRegister & 0xF7;
+  else
+    muteDACdata[1] = coreRegister | 0x08;
+
+  writeRegister(dspRegister::CoreRegister, sizeof(muteDACdata), muteDACdata);
+}
+
+
 template <typename Address, typename Data1, typename... DataN>
 void SigmaDSP::safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN)
 {
@@ -901,14 +948,14 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, boo
   addr[0] = (memoryAddress >> 8) & 0xFF;
   addr[1] = memoryAddress & 0xFF;
 
-  writeRegister(0x0815 + _safeload_count, sizeof(addr), addr); // Place passed 16-bit memory address in safeload address area
+  writeRegister(dspRegister::SafeloadAddress0 + _safeload_count, sizeof(addr), addr); // Place passed 16-bit memory address in safeload address area
 
   // Q: Why is the safeload registers five bytes long, while I'm loading four-byte parameters into the RAM using these registers?
   // A: The safeload registers are also used to load the slew RAM data, which is five bytes long. For parameter RAM writes using safeload,
   // the first byte of the safeload register can be set to 0x00.
 
   // Needs 5 bytes of data
-  writeRegister(0x0810 + _safeload_count, 5, data); // Placed passed data (5 bytes) in the next safeload data space
+  writeRegister(dspRegister::SafeloadData0 + _safeload_count, 5, data); // Placed passed data (5 bytes) in the next safeload data space
 
   _safeload_count++; // Increase counter
 
@@ -916,7 +963,7 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, boo
   {
     addr[0] = 0x00;
     addr[1] = 0x3C; // Set the IST bit (initiate safeload transfer bit)
-    writeRegister(0x081C, sizeof(addr), addr); // Load content from the safeload registers
+    writeRegister(dspRegister::CoreRegister, sizeof(addr), addr); // Load content from the safeload registers
     _safeload_count = 0;
   }
 }
@@ -1026,14 +1073,14 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
 
 
 /***************************************
-Function: readRegster()
-Purpose:  reads a DSP register
-Inputs:   uint16_t startMemoryAddress;   DSP memory address
+Function: readBack()
+Purpose:  reads a DSP block
+Inputs:   uint16_t tMemoryAddress;       DSP memory address
           uint16_t readout;              what register to read
           uint8_t numberOfBytes;         How manu bytes to read
 Returns:  int32_t value where bytes are concatenated
 ***************************************/
-int32_t SigmaDSP::readRegister(uint16_t memoryAddress, uint16_t readout, uint8_t numberOfBytes)
+int32_t SigmaDSP::readBack(uint16_t memoryAddress, uint16_t readout, uint8_t numberOfBytes)
 {
   uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
   uint8_t MSByte = memoryAddress >> 8;
@@ -1041,23 +1088,49 @@ int32_t SigmaDSP::readRegister(uint16_t memoryAddress, uint16_t readout, uint8_t
   _WireObject.beginTransmission(_dspAddress); // Begin write
   _WireObject.write(MSByte); // Send high address
   _WireObject.write(LSByte); // Send low address
-  LSByte = (uint8_t) readout & 0xFF;
+  LSByte = (uint8_t)readout & 0xFF;
   MSByte = readout >> 8;
-  Wire.write(MSByte); // Send high register to read
-  Wire.write(LSByte); // Send low register to read
-  Wire.endTransmission();
+  _WireObject.write(MSByte); // Send high register to read
+  _WireObject.write(LSByte); // Send low register to read
+  _WireObject.endTransmission();
 
-  Wire.beginTransmission(_dspAddress);
+  _WireObject.beginTransmission(_dspAddress);
   LSByte = (uint8_t)memoryAddress & 0xFF;
   MSByte = memoryAddress >> 8;
-  Wire.write(MSByte);
-  Wire.write(LSByte);
-  Wire.endTransmission(false);
+  _WireObject.write(MSByte);
+  _WireObject.write(LSByte);
+  _WireObject.endTransmission(false);
 
   int32_t returnVal = 0;
-  Wire.requestFrom(_dspAddress, numberOfBytes);
+  _WireObject.requestFrom(_dspAddress, numberOfBytes);
   for(uint8_t i = 0; i < numberOfBytes; i++)
-    returnVal = returnVal << 8 | Wire.read();
+    returnVal = returnVal << 8 | _WireObject.read();
+
+  return returnVal;
+}
+
+
+/***************************************
+Function: readRegster()
+Purpose:  reads a DSP hardware register
+Inputs:   dspRegister reg;       Register address
+          uint8_t numberOfBytes; Number of bytes to read from the register
+Returns:  uint16_t value;        Value of the register
+***************************************/
+uint32_t SigmaDSP::readRegister(dspRegister reg, uint8_t numberOfBytes)
+{
+  uint8_t LSByte = (uint8_t)reg & 0xFF;
+  uint8_t MSByte = reg >> 8;
+
+  _WireObject.beginTransmission(_dspAddress); // Begin write
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
+  _WireObject.endTransmission(false);
+
+  uint32_t returnVal = 0;
+  _WireObject.requestFrom(_dspAddress, numberOfBytes);
+  for(uint8_t i = 0; i < numberOfBytes; i++)
+    returnVal = returnVal << 8 | _WireObject.read();
 
   return returnVal;
 }

@@ -8,11 +8,44 @@
 
 // Only ADAU1701 is supported at the moment
 #define ADAU1701 0
-//#define ADAU1442 1
-//#define ADAU1445 1
-//#define ADAU1446 1
-//#define ADAU144X 1
 
+// Hardware register constants
+typedef enum
+{
+  InterfaceRegister0       = 0x0800,
+  InterfaceRegister1       = 0x0801,
+  InterfaceRegister2       = 0x0802,
+  InterfaceRegister3       = 0x0803,
+  InterfaceRegister4       = 0x0804,
+  InterfaceRegister5       = 0x0805,
+  InterfaceRegister6       = 0x0806,
+  InterfaceRegister7       = 0x0807,
+  GpioAllRegister          = 0x0808,
+  Adc0                     = 0x0809,
+  Adc1                     = 0x080A,
+  Adc2                     = 0x080B,
+  Adc3                     = 0x080C,
+  SafeloadData0            = 0x0810,
+  SafeloadData1            = 0x0811,
+  SafeloadData2            = 0x0812,
+  SafeloadData3            = 0x0813,
+  SafeloadData4            = 0x0814,
+  SafeloadAddress0         = 0x0815,
+  SafeloadAddress1         = 0x0816,
+  SafeloadAddress2         = 0x0816,
+  SafeloadAddress3         = 0x0818,
+  SafeloadAddress4         = 0x0819,
+  DataCapture0             = 0x081A,
+  DataCpature1             = 0x081B,
+  CoreRegister             = 0x081C,
+  RAMRegister              = 0x081D,
+  SerialOutRegister1       = 0x081E,
+  SerialInputRegister      = 0x081F,
+  MpCfg0                   = 0x0820,
+  MpCfg1                   = 0x0821,
+  AnalogPowerDownRegister  = 0x0822,
+  AnalogInterfaceRegister0 = 0x0824
+} dspRegister;
 
 class SigmaDSP
 {
@@ -89,6 +122,10 @@ class SigmaDSP
     void compressorRMS(uint16_t startMemoryAddress,  compressor_t &compressor);
     void compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor);
 
+    // Hardware functions
+    void muteADC(bool mute);
+    void muteDAC(bool mute);
+
     // Data conversion
     void floatToFixed(float value, uint8_t *buffer);
     void intToFixed(int32_t value, uint8_t *buffer);
@@ -105,35 +142,31 @@ class SigmaDSP
     void safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished);
     void safeload_writeRegister(uint16_t memoryAddress,  int32_t data, bool finished);
     void safeload_writeRegister(uint16_t memoryAddress,    float data, bool finished);
-    void safeload_writeRegister(uint16_t memoryAddress,  int16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+    void safeload_writeRegister(uint16_t memoryAddress,      int data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+    void safeload_writeRegister(uint16_t memoryAddress, uint16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
     void safeload_writeRegister(uint16_t memoryAddress,  uint8_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
     void safeload_writeRegister(uint16_t memoryAddress,   double data, bool finished) { safeload_writeRegister(memoryAddress,   (float)data, finished); }
     void writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *data);
     void writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data);
     void writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const uint8_t *data, uint8_t registerSize);
-    int32_t readRegister(uint16_t address, uint16_t value, uint8_t length);
+    int32_t readBack(uint16_t address, uint16_t value, uint8_t length);
+    uint32_t readRegister(dspRegister hwReg, uint8_t numberOfBytes);
 
 
   private:
     // Wrapper template functions for safeload template
     template <typename Data1, typename... DataN>
-		void safeload_write_wrapper(const Data1 &data1, const DataN &...dataN)
-		{
-			safeload_writeValue(_dspRegAddr, data1, false);
-			safeload_write_wrapper(dataN...);  // Recursive call using pack expansion syntax
-		}
-		// Handles next argument
-		template <typename Data1>
-		void safeload_write_wrapper(const Data1& data1)
-		{
-			safeload_writeValue(_dspRegAddr, data1, true);
-		}
-    // Wrapper template for safeload_writeRegister functions
-    template <typename Address, typename Data, typename Finished>
-    void safeload_writeValue(Address& regAddr, const Data &data, const Finished &finished)
+    void safeload_write_wrapper(const Data1 &data1, const DataN &...dataN)
     {
-      safeload_writeRegister(regAddr, data, finished);
-      regAddr++;
+      safeload_writeRegister(_dspRegAddr, data1, false);
+       _dspRegAddr++;
+      safeload_write_wrapper(dataN...);  // Recursive call using pack expansion syntax
+    }
+    // Handles last argument
+    template <typename Data1>
+    void safeload_write_wrapper(const Data1& data1)
+    {
+      safeload_writeRegister(_dspRegAddr, data1, true);
     }
 
     // Math
