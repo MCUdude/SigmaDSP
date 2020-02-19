@@ -54,8 +54,8 @@ class SigmaDSP
     SigmaDSP(uint8_t i2cAddress, uint8_t device, int8_t resetPin = -1);
 
     // Init and setup
-    void begin(TwoWire &WireObject = Wire);
-    void begin(TwoWire &WireObject, uint8_t sdaPin, uint8_t sclPin);
+    void begin(TwoWire *WireObject = &Wire);
+    void begin(TwoWire *WireObject, uint8_t sdaPin, uint8_t sclPin);
     void i2cClock(uint32_t clock);
     void reset();
     uint8_t ping();
@@ -173,15 +173,15 @@ class SigmaDSP
     void linspace(float x1, float x2, float n, float *vect);
 
     // Objects
-    TwoWire _WireObject; // Reference to passed Wire object
+    TwoWire *_WireObject;      // Pointer to passed Wire object
     
     // Private constants
-    const uint8_t _dspAddress;   // Passed device i2c address
-    const uint8_t _deviceType;   // Passed device type
-    const int8_t  _resetPin;     // Digital pin to reset the DSP
+    const uint8_t _dspAddress; // Passed device i2c address
+    const uint8_t _deviceType; // Passed device type
+    const int8_t  _resetPin;   // Digital pin to reset the DSP
     
     // Private variables
-    uint16_t _dspRegAddr; // Used by template safeload functions
+    uint16_t _dspRegAddr;      // Used by template safeload functions
 };
 
 

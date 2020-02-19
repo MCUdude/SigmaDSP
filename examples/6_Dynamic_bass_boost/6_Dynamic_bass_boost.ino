@@ -35,8 +35,8 @@ void setup()
 
   // dsp and ee supports re-mapping of the SDA and SCL signals, but
   // can only be done if the microcontroller supports it (ESP8266 for example)
-  dsp.begin(/* Wire, SDA, SCL */);
-  //ee.begin(/* Wire, SDA, SCL */);
+  dsp.begin(/* &Wire, SDA, SCL */);
+  //ee.begin(/* &Wire, SDA, SCL */);
 
   delay(2000);
 
@@ -47,7 +47,7 @@ void setup()
   //Serial.print(F("EEPROM ping: "));
   //Serial.println(ee.ping());
 
- 
+
   // Use this step if no EEPROM is present
   Serial.print(F("\nLoading DSP program... "));
   loadProgram(dsp);
@@ -62,7 +62,7 @@ void setup()
 }
 
 
-void loop() 
+void loop()
 {
   Serial.println(F("Set bass boost to 0dB"));
   dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_LOWLEVELBOOST_ADDR, 0);

@@ -40,12 +40,12 @@ Purpose:  Starts the i2c interface
 Inputs:   TwoWire Wire;    Wire object (optional parameter)
 Returns:  None
 ***************************************/
-void DSPEEPROM::begin(TwoWire &WireObject)
+void DSPEEPROM::begin(TwoWire *WireObject)
 {
   // Store copy the passed object
   _WireObject = WireObject;
 
-  Wire.begin();
+  _WireObject->begin();
 
   // If LED is present
   if(_ledPin >= 0)
@@ -64,19 +64,23 @@ Inputs:   TwoWire Wire;    Wire object
           uint8_t sclPin;  SCL pin
 Returns:  None
 ***************************************/
-void DSPEEPROM::begin(TwoWire &WireObject, uint8_t sdaPin, uint8_t sclPin)
+void DSPEEPROM::begin(TwoWire *WireObject, uint8_t sdaPin, uint8_t sclPin)
 {
   // Store copy the passed object
   _WireObject = WireObject;
 
-  #ifdef __AVR__
+  // This hardware supports redefining SDA and SCL in begin()
+  #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)   \
+  || defined(ARDUINO_ARCH_STM32F0)  || defined(ARDUINO_ARCH_STM32F1) \
+  || defined(ARDUINO_ARCH_STM32F3)  || defined(ARDUINO_ARCH_STM32F4) \
+  || defined(ARDUINO_ARCH_STM32L4)
+    _WireObject->begin(sdaPin, sclPin);
+  #else // This does not
     (void)sdaPin;
     (void)sclPin;
-    Wire.begin();
-  #else
-    Wire.begin(sdaPin, sclPin);
+    _WireObject->begin();
   #endif
-  
+
   // If LED is present
   if(_ledPin >= 0)
   {
@@ -97,8 +101,8 @@ Returns:  0 - success: ack received
 ***************************************/
 uint8_t DSPEEPROM::ping()
 {
-  Wire.beginTransmission(_eepromAddress);
-  return Wire.endTransmission();
+  _WireObject->beginTransmission(_eepromAddress);
+  return _WireObject->endTransmission();
 }
 
 
@@ -111,15 +115,15 @@ Returns:  Firmware version. 0 indicated that no EEPROM is found,
 ***************************************/
 uint8_t DSPEEPROM::getFirmwareVersion()
 {  
-  Wire.beginTransmission(_eepromAddress);
-  Wire.write((uint16_t)_firmwareVersionAddress >> 8); // MSB
-  Wire.write(_firmwareVersionAddress & 0xFF);         // LSB
-  Wire.endTransmission();
+  _WireObject->beginTransmission(_eepromAddress);
+  _WireObject->write((uint16_t)_firmwareVersionAddress >> 8); // MSB
+  _WireObject->write(_firmwareVersionAddress & 0xFF);         // LSB
+  _WireObject->endTransmission();
   
-  Wire.requestFrom((uint8_t)_eepromAddress, (uint8_t)1);
+  _WireObject->requestFrom((uint8_t)_eepromAddress, (uint8_t)1);
   
-  if(Wire.available()) 
-    return Wire.read();
+  if(_WireObject->available())
+    return _WireObject->read();
   else
     return 0;   
 }
@@ -139,60 +143,60 @@ uint8_t DSPEEPROM::writeFirmware(const uint8_t *firmware, uint16_t size, int8_t 
 {
   // Check if EEPROM already contains the current firmware version
   uint8_t EEPROM_firmwareVersion = getFirmwareVersion();
-  
+
   // Write new firmware is version doesn't match or if no version is provided
   if(firmwareVersion != EEPROM_firmwareVersion || firmwareVersion < 0)
   {
     // Write new firmware
     for(uint16_t i = 0; i < size; i++)
     {
-      Wire.beginTransmission(_eepromAddress);
-      Wire.write(i >> 8);                      // High memory address
-      Wire.write(i & 0xFF);                    // Low memory address
-      Wire.write(pgm_read_byte(&firmware[i])); // Content
-      Wire.endTransmission();                  // End
+      _WireObject->beginTransmission(_eepromAddress);
+      _WireObject->write(i >> 8);                      // High memory address
+      _WireObject->write(i & 0xFF);                    // Low memory address
+      _WireObject->write(pgm_read_byte(&firmware[i])); // Content
+      _WireObject->endTransmission();                  // End
       // EEPROM is a slooow kind of memory..
       delay(5);
-    
+
       // Toggle LED every 32th byte if LED is present
       if(_ledPin >= 0 && ledCounter & 0x20)
         digitalWrite(_ledPin, !digitalRead(_ledPin));
-    
+
       // Increase counter
       ledCounter++;
     }
-    
+
     // Make sure all tracks of old FW is gone, by overwriting a few more bytes
     for(uint16_t i = size; i < 0x2000; i++)
     {
-      Wire.beginTransmission(_eepromAddress);
-      Wire.write(i >> 8);     // High memory address
-      Wire.write(i & 0xFF);   // Low memory address
-      Wire.write(0xFF);       // Content
-      Wire.endTransmission(); // End
+      _WireObject->beginTransmission(_eepromAddress);
+      _WireObject->write(i >> 8);     // High memory address
+      _WireObject->write(i & 0xFF);   // Low memory address
+      _WireObject->write(0xFF);       // Content
+      _WireObject->endTransmission(); // End
       delay(5);
-      
+
       // Toggle LED every 16th byte if LED is present when filling the rest
       if(_ledPin >= 0 && ledCounter & 0x10)
         digitalWrite(_ledPin, !digitalRead(_ledPin));
-    
+
       // Increase counter
       ledCounter++;
     }
-    
+
     // Write firmware version to the last byte in EEPROM
-    Wire.beginTransmission(_eepromAddress);
-    Wire.write((uint16_t)_firmwareVersionAddress >> 8); // High memory address
-    Wire.write(_firmwareVersionAddress & 0xFF);         // Low memory address
-    Wire.write(firmwareVersion);                        // Content
-    Wire.endTransmission();                             // End
+    _WireObject->beginTransmission(_eepromAddress);
+    _WireObject->write((uint16_t)_firmwareVersionAddress >> 8); // High memory address
+    _WireObject->write(_firmwareVersionAddress & 0xFF);         // Low memory address
+    _WireObject->write(firmwareVersion);                        // Content
+    _WireObject->endTransmission();                             // End
     delay(5);
-  
+
    // Turn off LED after flashing is finished if LED is present
    if(_ledPin >= 0)
      digitalWrite(_ledPin, LOW);
   }
-   
+
   // Does the last byte in memory contain the correct FW version?
   EEPROM_firmwareVersion = getFirmwareVersion();
   if(EEPROM_firmwareVersion == firmwareVersion)
