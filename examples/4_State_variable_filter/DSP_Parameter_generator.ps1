@@ -103,7 +103,7 @@ else {
 $paramContent = 
 $dspParamContent | 
     Where-Object {
-    $_ -match "Module" -or $_ -match "COUNT" -or $_ -match "FIXPT" -or $_ -match "ADDR"
+    $temp = $_.Split(' ')[1]; $_ -match "/* Module" -or $temp -match "_COUNT$" -or $temp -match "_FIXPT$" -or $temp -match "_VALUES$" -or $temp -match "_ADDR$"
 }  
 
 $paramContent = $paramContent -join $lf  | Out-String
@@ -248,6 +248,9 @@ $output = "#ifndef SIGMADSP_PARAMETERS_H
 /* 7-bit i2c addresses */
 #define DSP_I2C_ADDRESS ($dspProgAddress >> 1) & 0xFE
 $eepromProgAddressLine
+
+// Define readout macro as empty
+#define SIGMASTUDIOTYPE_SPECIAL(x) (x)
 
 $paramContent
 
