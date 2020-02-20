@@ -57,10 +57,7 @@ void SigmaDSP::begin(TwoWire *WireObject, uint8_t sdaPin, uint8_t sclPin)
   _WireObject = WireObject;
 
   // This hardware supports redefining SDA and SCL in begin()
-  #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)   \
-  || defined(ARDUINO_ARCH_STM32F0)  || defined(ARDUINO_ARCH_STM32F1) \
-  || defined(ARDUINO_ARCH_STM32F3)  || defined(ARDUINO_ARCH_STM32F4) \
-  || defined(ARDUINO_ARCH_STM32L4)
+  #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_STM32)
     _WireObject->begin(sdaPin, sclPin);
   #else // This does not
     (void)sdaPin;
