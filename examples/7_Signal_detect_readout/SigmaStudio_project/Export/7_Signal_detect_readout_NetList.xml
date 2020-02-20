@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- *
+ * This software is distributed in the hope that it will be useful,
+ * but is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * This software may only be used to program products purchased from
+ * Analog Devices for incorporation by you into audio products that
+ * are intended for resale to audio product end users. This software
+ * may not be distributed whole or in any part to third parties.
+ *
+ * Copyright © 2020 Analog Devices, Inc. All rights reserved.
+ */
+-->
+<!--NetList XML file-->
+<NetList>
+    <IC name=" IC 1 " type="DSPSigma100">
+        <Schematic>
+            <Algorithm name="ICSigma100In1" friendlyname="170x\140x input" cell="Input1 ">
+                <Link pin="O_C14_A0_P1_out" dir="out" link="Link2" />
+                <Link pin="O_C14_A0_P2_out" dir="out" link="Link3" />
+            </Algorithm>
+            <Algorithm name="NthOrderDouble21" friendlyname="2 Channel - Double Precision" cell="Noise_filter ">
+                <Link pin="I_C93_A0_P1_in" dir="in" link="Link2" />
+                <Link pin="I_C93_A0_P2_in" dir="in" link="Link3" />
+                <Link pin="O_C93_A0_P3_out" dir="out" link="Link4" />
+                <Link pin="O_C93_A0_P4_out" dir="out" link="Link5" />
+            </Algorithm>
+            <Algorithm name="ICSigma100Out1" friendlyname="170x\140x output" cell="Output1 ">
+                <Link pin="I_C25_A0_P1_in" dir="in" link="Link4" />
+            </Algorithm>
+            <Algorithm name="ICSigma100Out2" friendlyname="170x\140x output" cell="Output2 ">
+                <Link pin="I_C27_A0_P1_in" dir="in" link="Link5" />
+            </Algorithm>
+            <Algorithm name="SignalDetectAlg2" friendlyname="Signal Detection Algorihm" cell="Signal_detection_right ">
+                <Link pin="I_C38_A0_P2_in" dir="in" link="Link5" />
+                <Link pin="O_C38_A0_P1_out" dir="out" link="Link0" />
+            </Algorithm>
+            <Algorithm name="SignalDetectAlg1" friendlyname="Signal Detection Algorihm" cell="Signal_detection_left ">
+                <Link pin="I_C57_A0_P2_in" dir="in" link="Link4" />
+                <Link pin="O_C57_A0_P1_out" dir="out" link="Link1" />
+            </Algorithm>
+            <Algorithm name="ReadBackAlg2" friendlyname="Data Capture Register Readback" cell="Signal_detection_readout_right ">
+                <Link pin="I_C35_A0_P1_in" dir="in" link="Link0" />
+            </Algorithm>
+            <Algorithm name="ReadBackAlg1" friendlyname="Data Capture Register Readback" cell="Signal_detection_readout_left ">
+                <Link pin="I_C54_A0_P1_in" dir="in" link="Link1" />
+            </Algorithm>
+        </Schematic>
+    </IC>
+</NetList>
