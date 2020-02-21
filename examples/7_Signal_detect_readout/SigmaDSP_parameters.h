@@ -6,7 +6,7 @@
 /****************************************************************************
 | Filename: SigmaDSP_parameters.h                                           |
 | Generation tool: AWK + bash                                               |
-| Date and time: 19.02.2020 15:12:35                                        |
+| Date and time: 21.02.2020 11:18:57                                        |
 | Generated from: 7_Signal_detect_readout.dspproj                           |
 |                                                                           |
 | ADAU1701 parameter and program file header                                |
@@ -50,12 +50,8 @@
 #define DSP_I2C_ADDRESS (0x68 >> 1) & 0xFE
 #define EEPROM_I2C_ADDRESS (0xA0 >> 1) & 0xFE
 
-// Define readout macro as empty
-#define SIGMASTUDIOTYPE_SPECIAL(x) (x)
-
-
 /* Module Noise_filter - Nth Order Filter*/
-#define MOD_NOISE_FILTER_COUNT                         5
+#define MOD_NOISE_FILTER_COUNT 5
 
 #define MOD_NOISE_FILTER_ALG0_STAGE1_NTHORDERDOUBLE21_0B_1_ADDR 0
 #define MOD_NOISE_FILTER_ALG0_STAGE1_NTHORDERDOUBLE21_0B_1_FIXPT 0x007F68B3
@@ -74,7 +70,7 @@
 
 
 /* Module Signal_detection_right - Signal Detection*/
-#define MOD_SIGNAL_DETECTION_RIGHT_COUNT               3
+#define MOD_SIGNAL_DETECTION_RIGHT_COUNT 3
 
 #define MOD_SIGNAL_DETECTION_RIGHT_ALG0_TIMECONSTANTSIGNALDETECTALG2_ADDR 5
 #define MOD_SIGNAL_DETECTION_RIGHT_ALG0_TIMECONSTANTSIGNALDETECTALG2_FIXPT 0x007FFE1B
@@ -87,7 +83,7 @@
 
 
 /* Module Signal_detection_left - Signal Detection*/
-#define MOD_SIGNAL_DETECTION_LEFT_COUNT                3
+#define MOD_SIGNAL_DETECTION_LEFT_COUNT 3
 
 #define MOD_SIGNAL_DETECTION_LEFT_ALG0_TIMECONSTANTSIGNALDETECTALG1_ADDR 8
 #define MOD_SIGNAL_DETECTION_LEFT_ALG0_TIMECONSTANTSIGNALDETECTALG1_FIXPT 0x007FFE1B
@@ -100,18 +96,18 @@
 
 
 /* Module Signal_detection_readout_left - DSP Readback*/
-#define MOD_SIGNAL_DETECTION_READOUT_LEFT_COUNT        2
+#define MOD_SIGNAL_DETECTION_READOUT_LEFT_COUNT 2
 
 #define MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_ADDR 2074
-#define MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_VALUES SIGMASTUDIOTYPE_SPECIAL(0x00EE)
+#define MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_VALUES 0x00EE
 #define MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_READBACK_ADDR 0
 #define MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL1_ADDR 2074
 
 /* Module Signal_detection_readout_right - DSP Readback*/
-#define MOD_SIGNAL_DETECTION_READOUT_RIGHT_COUNT       2
+#define MOD_SIGNAL_DETECTION_READOUT_RIGHT_COUNT 2
 
 #define MOD_SIGNAL_DETECTION_READOUT_RIGHT_ALG0_VAL0_ADDR 2074
-#define MOD_SIGNAL_DETECTION_READOUT_RIGHT_ALG0_VAL0_VALUES SIGMASTUDIOTYPE_SPECIAL(0x00E2)
+#define MOD_SIGNAL_DETECTION_READOUT_RIGHT_ALG0_VAL0_VALUES 0x00E2
 #define MOD_SIGNAL_DETECTION_READOUT_RIGHT_ALG0_VAL0_READBACK_ADDR 0
 #define MOD_SIGNAL_DETECTION_READOUT_RIGHT_ALG0_VAL1_ADDR 2074
 

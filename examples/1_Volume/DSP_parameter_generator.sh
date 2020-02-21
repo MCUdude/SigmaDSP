@@ -151,15 +151,10 @@ BEGIN {
 {
   # Track down the DSP and EEPROM i2c addresses and convert them into 7-bit
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_1")
-    printf($1 " DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
+    printf("%s DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $1, $3)
   
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")  
-    printf($1 " EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $3)
-}
-
-END {
-  printf("\n// Define readout macro as empty\n")
-  printf("#define SIGMASTUDIOTYPE_SPECIAL(x) (x)\n\n")
+    printf("%s EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $1, $3)
 } ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > "$(dirname "$0")/SigmaDSP_parameters.h"
 
 
@@ -174,23 +169,23 @@ awk '
   
   # Print out each module comment
   if ($0 ~ "/* Module.") 
-    printf("\n" $0 "\n")
+    printf("\n%s\n", $0)
 
   # Print every line where column two ends with _COUNT
   if ($2 ~ "._COUNT$")
-    printf($0 "\n\n")
+    printf("%s %s %s\n\n", $1, $2, $3)
 
   # Print every line where column two ends with _ADDR
   if ($2 ~ "._ADDR$")  
-    printf($0 "\n")
+    printf("%s\n", $0)
 
-  # Print every line where column two ends with _VALUES
-  if ($2 ~ "._VALUES$") 
-    printf($0 "\n")
+  # Print column 1, 2 and only the number between the parenthesis on the line where column two ends with _VALUES
+  if ($2 ~ "._VALUES$")
+    printf("%s %s %s\n", $1, $2, substr($3, match($3, /\(/) + 1, match($3, /\)/) - (match($3, /\(/)) - 1))
 
   # Print every line where column two ends with _FIXPT
   if ($2 ~ "._FIXPT$") 
-    printf($0 "\n\n")
+    printf("%s\n\n", $0)
 } ' "$DSP_PARAM_FILE" >> "$(dirname "$0")/SigmaDSP_parameters.h"
 
 
@@ -206,8 +201,7 @@ then
   BEGIN {
     FS=" * , *"
     RS="^$"  
-    printf("\n\n")
-    printf("/* This array contains the entire DSP program,\nand should be loaded into the external i2c EEPROM */\n\n")
+    printf("\n\n/* This array contains the entire DSP program,\nand should be loaded into the external i2c EEPROM */\n\n")
   }
   
   {
@@ -244,14 +238,14 @@ BEGIN {
   {
     # Print out relevant comments
     if ($0 ~ "/* DSP." || $0 ~"/* Register.")
-      printf("\n" $0 "\n")         
+      printf("\n%s\n", $0)         
     
     if ($2 == "PROGRAM_SIZE_IC_1")
-      printf("#define PROGRAM_SIZE " $3 "\n")
+      printf("#define PROGRAM_SIZE %s\n", $3)
       
     if ($2 == "PROGRAM_ADDR_IC_1")
     {
-      printf("#define PROGRAM_ADDR " $3 "\n")
+      printf("#define PROGRAM_ADDR %s\n", $3)
       printf("#define PROGRAM_REGSIZE 5\n\n")
     }
         
@@ -259,11 +253,11 @@ BEGIN {
       printf("const uint8_t PROGMEM DSP_program_data[PROGRAM_SIZE] = \n{\n")  
         
     if ($2 == "PARAM_SIZE_IC_1")
-      printf("#define PARAMETER_SIZE " $3 "\n")
+      printf("#define PARAMETER_SIZE %s\n", $3)
       
     if ($2 == "PARAM_ADDR_IC_1")
     {
-      printf("#define PARAMETER_ADDR " $3 "\n")
+      printf("#define PARAMETER_ADDR %s\n", $3)
       printf("#define PARAMETER_REGSIZE 4\n\n")
     }
     
@@ -280,7 +274,7 @@ BEGIN {
     
     if ($2 == "R3_HWCONFIGURATION_IC_1_SIZE")
     {
-      printf("#define HARDWARE_CONF_SIZE " $3 "\n")
+      printf("#define HARDWARE_CONF_SIZE %s\n", $3)
       printf("#define HARDWARE_CONF_ADDR 0x081C\n")
       printf("#define HARDWARE_CONF_REGSIZE 1\n\n")
     }
@@ -302,7 +296,7 @@ BEGIN {
     
     # Print out all end brackets
     if ($1 ~ "}.")
-      printf($0 "\n\n")
+      printf("%s\n\n", $0)
     
     # Escape  
     if ($1 == "*")

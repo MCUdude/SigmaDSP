@@ -4,21 +4,21 @@
 #include <SigmaDSP.h>
 
 /****************************************************************************
-| File name: SigmaDSP_parameters.h                                          |
+| Filename: SigmaDSP_parameters.h                                           |
 | Generation tool: AWK + bash                                               |
-| Date and time: 17.02.2020 09:22:20                                        |
+| Date and time: 21.02.2020 12:21:46                                        |
 | Generated from: 6_Dynamic_bass_boost.dspproj                              |
 |                                                                           |
 | ADAU1701 parameter and program file header                                |
-| SigmaDSP library and its content is developed and maintained by MCUdude.  |
+| SigmaDSP library and its content are developed and maintained by MCUdude. |
 | https://github.com/MCUdude/SigmaDSP                                       |
 |                                                                           |
 | Huge thanks to the Aida DSP team who have reverse engineered a lot of the |
-| Sigma DSP algorithms and made them open source and available to everyone. |
+| Sigma DSP algorithms and made them open-source and available to everyone. |
 | This library would never have existed if it wasn't for the Aida DSP team  |
 | and their incredible work.                                                |
 |                                                                           |
-| This file have been generated with the Sigmastudio_parameter_generator.sh |
+| This file has been generated with the Sigmastudio_parameter_generator.sh  |
 | script. This file contains all the DSP function block parameters and      |
 | addresses. It also contains the program that will be loaded to the        |
 | external EEPROM.                                                          |
@@ -27,10 +27,13 @@
 | module takes.                                                             |
 |                                                                           |
 | The *_ADDR macro holds the current address for the module. Use this macro |
-| when changing the behaviour of the modules (EQs, volume etc.).            |
+| when changing the behavior of the modules (EQs, volume, etc.).            |
 |                                                                           |
 | The *_FIXFT macros holds the default value of the module. Use this when   |
 | restoring the default parameters.                                         |
+|                                                                           |
+| The *_VALUES macros holds the address of what module to read from if      |
+| you are using the readout blocks.                                         |
 |                                                                           |
 | The DSP_eeprom_firmware[] array contains the DSP firmware, and can be     |
 | loaded using the writeFirmware method in the DSPEEPROM class.             |
@@ -47,11 +50,8 @@
 #define DSP_I2C_ADDRESS (0x68 >> 1) & 0xFE
 #define EEPROM_I2C_ADDRESS (0xA0 >> 1) & 0xFE
 
-// Define readout macro as empty
-#define SIGMASTUDIOTYPE_SPECIAL(x) (x)
-
 /* Module Dynamic_bass - Dynamic Enhancement*/
-#define MOD_DYNAMIC_BASS_COUNT                         9
+#define MOD_DYNAMIC_BASS_COUNT 9
 
 #define MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR           0
 #define MOD_DYNAMIC_BASS_ALG0_FREQUENCY_FIXPT          0x0001015B
@@ -84,7 +84,10 @@
 
 /* This array contains the entire DSP program,
 and should be loaded into the external i2c EEPROM */
-const uint8_t PROGMEM DSP_eeprom_firmware[576] =
+
+#define EEPROM_SIZE 576
+
+const uint8_t PROGMEM DSP_eeprom_firmware[EEPROM_SIZE] =
 {
 0x01, 0x00, 0x05, 0x00, 0x08, 0x1C, 0x00, 0x58, 
 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 
@@ -159,7 +162,6 @@ const uint8_t PROGMEM DSP_eeprom_firmware[576] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 };
-
 
 
 /* DSP Program Data */
@@ -2282,6 +2284,5 @@ void loadProgram(SigmaDSP &myDSP)
   myDSP.writeRegister(HARDWARE_CONF_ADDR, HARDWARE_CONF_SIZE, DSP_hardware_conf_data);
   myDSP.writeRegister(CORE_REGISTER_R4_ADDR, CORE_REGISTER_R4_SIZE, DSP_core_register_R4_data);
 }
-
 
 #endif
