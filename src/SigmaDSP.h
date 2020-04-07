@@ -142,7 +142,11 @@ class SigmaDSP
     void safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished);
     void safeload_writeRegister(uint16_t memoryAddress,  int32_t data, bool finished);
     void safeload_writeRegister(uint16_t memoryAddress,    float data, bool finished);
+    #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+    void safeload_writeRegister(uint16_t memoryAddress,  int16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+    #else
     void safeload_writeRegister(uint16_t memoryAddress,      int data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+    #endif
     void safeload_writeRegister(uint16_t memoryAddress, uint16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
     void safeload_writeRegister(uint16_t memoryAddress,  uint8_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
     void safeload_writeRegister(uint16_t memoryAddress,   double data, bool finished) { safeload_writeRegister(memoryAddress,   (float)data, finished); }
