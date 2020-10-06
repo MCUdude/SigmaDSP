@@ -51,11 +51,10 @@ class SigmaDSP
 {
   public:
     // Store passed device type and i2c address to private constants
-    SigmaDSP(uint8_t i2cAddress, uint8_t device, int8_t resetPin = -1);
+    SigmaDSP(TwoWire &WireObject, uint8_t i2cAddress, uint8_t device, int8_t resetPin = -1);
 
     // Init and setup
-    void begin(TwoWire *WireObject = &Wire);
-    void begin(TwoWire *WireObject, uint8_t sdaPin, uint8_t sclPin);
+    void begin();
     void i2cClock(uint32_t clock);
     void reset();
     uint8_t ping();
@@ -177,7 +176,7 @@ class SigmaDSP
     void linspace(float x1, float x2, float n, float *vect);
 
     // Objects
-    TwoWire *_WireObject;      // Pointer to passed Wire object
+    TwoWire &_WireObject;      // Reference to passed Wire object
     
     // Private constants
     const uint8_t _dspAddress; // Passed device i2c address

@@ -2,31 +2,34 @@
 | SigmaDSP library                             |
 | https://github.com/MCUdude/SigmaDSP          |
 |                                              |
-| 0_Template.                                  |
+| 0_Template.ino                               |
 | This example is ment to be used as a         |
-| template for your own projects. It brings no |
-| functionality other than connecting the two  |
-| analog inputs directly to output 0 and 1.    |
+| template for your own projects. It provide   |
+| no functionality other than connecting the   |
+| two analog inputs directly to output 0 and 1 |
 |**********************************************/
 
-// Include SigmaDSP library
+// Include Wire and SigmaDSP library
+#include <Wire.h>
 #include <SigmaDSP.h>
 
 // Include generated parameter file
 #include "SigmaDSP_parameters.h"
 
 
-// The first parameter is the i2c address, which is defined in the parameter file.
-// The next parameter is the SigmaDSP type
-// An optional third parameter is the pin to physically reset the DSP
-SigmaDSP dsp(DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
+// The first parameter is the Wire object we'll be using when communicating wth the DSP
+// The second parameter is the DSP i2c address, which is defined in the parameter file
+// The third parameter is the SigmaDSP type
+// An optional fourth parameter is the pin to physically reset the DSP
+SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
 
 
 // Only needed if an external i2c EEPROM is present + the DSP is in selfboot mode
-// The first parameter is the i2c address, which is defined in the parameter file.
-// The second parameter is the EEPROM size in kilobits
-// An optional third parameter is the pin to toggle while writing content to EEPROM
-//DSPEEPROM ee(EEPROM_I2C_ADDRESS, 256, LED_BUILTIN);
+// The first parameter is the Wire object we'll be using when communicating wth the EEPROM
+// The second parameter is the EEPROM i2c address, which is defined in the parameter file
+// The third parameter is the EEPROM size in kilobits (kb)
+// An optional fourth parameter is the pin to toggle while writing content to EEPROM
+//DSPEEPROM ee(Wire, EEPROM_I2C_ADDRESS, 256, LED_BUILTIN);
 
 
 void setup() 
@@ -34,10 +37,8 @@ void setup()
   Serial.begin(9600);
   Serial.println(F("SigmaDSP 0_Template example\n"));
 
-  // dsp and ee supports re-mapping of the SDA and SCL signals, but
-  // can only be done if the microcontroller supports it (ESP8266 for example)
-  dsp.begin(/* &Wire, SDA, SCL */);
-  //ee.begin(/* &Wire, SDA, SCL */);
+  dsp.begin();
+  //ee.begin();
 
   delay(2000);
 

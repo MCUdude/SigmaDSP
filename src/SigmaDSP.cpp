@@ -8,13 +8,14 @@
 /***************************************
 Function: SigmaDSP()
 Purpose:  Constructor of the class.
-Inputs:   uint8_t i2cAddress; DSP i2c address
-          uint8_t device;     The DSP type, e.g ADAU1701
-          uint8_t resetPin;   pin to reset DSP (optional parameter)
+Inputs:   TwoWire &WireObject; Reference to Wire object
+          uint8_t i2cAddress;  DSP i2c address
+          uint8_t device;      The DSP type, e.g ADAU1701
+          uint8_t resetPin;    pin to reset DSP (optional parameter)
 Returns:  None
 ***************************************/
-SigmaDSP::SigmaDSP(uint8_t i2cAddress, uint8_t device, int8_t resetPin)
-  : _dspAddress(i2cAddress), _deviceType(device), _resetPin(resetPin)
+SigmaDSP::SigmaDSP(TwoWire &WireObject, uint8_t i2cAddress, uint8_t device, int8_t resetPin)
+  : _WireObject(WireObject), _dspAddress(i2cAddress), _deviceType(device), _resetPin(resetPin)
 {
 
 }
@@ -23,48 +24,10 @@ SigmaDSP::SigmaDSP(uint8_t i2cAddress, uint8_t device, int8_t resetPin)
 /***************************************
 Function: begin()
 Purpose:  Starts the i2c interface
-Inputs:   TwoWire Wire;     Wire object (optional parameter)
 Returns:  None
 ***************************************/
-void SigmaDSP::begin(TwoWire *WireObject)
+void SigmaDSP::begin()
 {
-  // Store copy the passed object
-  _WireObject = WireObject;
-
-  _WireObject->begin();
-
-  // Reset DSP if pin is present
-  if(_resetPin >= 0)
-  {
-    pinMode(_resetPin, OUTPUT);
-    digitalWrite(_resetPin, HIGH);
-    reset();
-  }
-}
-
-
-/***************************************
-Function: begin()
-Purpose:  Starts the i2c interface
-Inputs:   TwoWire Wire;     Wire object
-          uint8_t sdaPin;   SDA pin
-          uint8_t sclPin;   SCL pin
-Returns:  None
-***************************************/
-void SigmaDSP::begin(TwoWire *WireObject, uint8_t sdaPin, uint8_t sclPin)
-{
-  // Store copy the passed object
-  _WireObject = WireObject;
-
-  // This hardware supports redefining SDA and SCL in begin()
-  #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_STM32)
-    _WireObject->begin(sdaPin, sclPin);
-  #else // This does not
-    (void)sdaPin;
-    (void)sclPin;
-    _WireObject->begin();
-  #endif
-
   // Reset DSP if pin is present
   if(_resetPin >= 0)
   {
@@ -83,7 +46,7 @@ Returns:  None
 ***************************************/
 void SigmaDSP::i2cClock(uint32_t clock)
 {
-  _WireObject->setClock(clock);
+  _WireObject.setClock(clock);
 }
 
 
@@ -115,8 +78,8 @@ Returns:  0 - success: ack received
 ***************************************/
 uint8_t SigmaDSP::ping()
 {
-  _WireObject->beginTransmission(_dspAddress);
-  return _WireObject->endTransmission();
+  _WireObject.beginTransmission(_dspAddress);
+  return _WireObject.endTransmission();
 }
 
 
@@ -997,15 +960,15 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *da
   uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
   uint8_t MSByte = memoryAddress >> 8;
 
-  _WireObject->beginTransmission(_dspAddress); // Begin write
+  _WireObject.beginTransmission(_dspAddress); // Begin write
 
-  _WireObject->write(MSByte); // Send high address
-  _WireObject->write(LSByte); // Send low address
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
 
   for(uint8_t i = 0; i < length; i++)
-    _WireObject->write(data[i]); // Send all bytes in passed array
+    _WireObject.write(data[i]); // Send all bytes in passed array
 
-  _WireObject->endTransmission(); // Write out data to I2C and stop transmitting
+  _WireObject.endTransmission(); // Write out data to I2C and stop transmitting
 }
 
 
@@ -1023,15 +986,15 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, const uint8
   uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
   uint8_t MSByte = memoryAddress >> 8;
 
-  _WireObject->beginTransmission(_dspAddress); // Begin write
+  _WireObject.beginTransmission(_dspAddress); // Begin write
 
-  _WireObject->write(MSByte); // Send high address
-  _WireObject->write(LSByte); // Send low address
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
 
   for(uint8_t i = 0; i < length; i++)
-    _WireObject->write(pgm_read_byte(&data[i])); // Send all bytes in passed array
+    _WireObject.write(pgm_read_byte(&data[i])); // Send all bytes in passed array
 
-  _WireObject->endTransmission(); // Write out data to I2C and stop transmitting
+  _WireObject.endTransmission(); // Write out data to I2C and stop transmitting
 }
 
 
@@ -1057,15 +1020,15 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
     MSByte = memoryAddress >> 8;
     LSByte = (uint8_t)memoryAddress & 0xFF;
 
-    _WireObject->beginTransmission(_dspAddress);
-    _WireObject->write(MSByte); // Send high address
-    _WireObject->write(LSByte); // Send low address
+    _WireObject.beginTransmission(_dspAddress);
+    _WireObject.write(MSByte); // Send high address
+    _WireObject.write(LSByte); // Send low address
     for(uint8_t i = 0; i < registerSize; i++) // Send n bytes
     {
-      _WireObject->write(pgm_read_byte(&data[bytesSent]));
+      _WireObject.write(pgm_read_byte(&data[bytesSent]));
       bytesSent++;
     }
-    _WireObject->endTransmission();
+    _WireObject.endTransmission();
 
     memoryAddress++; // Increase address
   }
@@ -1085,26 +1048,26 @@ int32_t SigmaDSP::readBack(uint16_t memoryAddress, uint16_t readout, uint8_t num
   uint8_t LSByte = (uint8_t)memoryAddress & 0xFF;
   uint8_t MSByte = memoryAddress >> 8;
 
-  _WireObject->beginTransmission(_dspAddress); // Begin write
-  _WireObject->write(MSByte); // Send high address
-  _WireObject->write(LSByte); // Send low address
+  _WireObject.beginTransmission(_dspAddress); // Begin write
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
   LSByte = (uint8_t)readout & 0xFF;
   MSByte = readout >> 8;
-  _WireObject->write(MSByte); // Send high register to read
-  _WireObject->write(LSByte); // Send low register to read
-  _WireObject->endTransmission();
+  _WireObject.write(MSByte); // Send high register to read
+  _WireObject.write(LSByte); // Send low register to read
+  _WireObject.endTransmission();
 
-  _WireObject->beginTransmission(_dspAddress);
+  _WireObject.beginTransmission(_dspAddress);
   LSByte = (uint8_t)memoryAddress & 0xFF;
   MSByte = memoryAddress >> 8;
-  _WireObject->write(MSByte);
-  _WireObject->write(LSByte);
-  _WireObject->endTransmission(false);
+  _WireObject.write(MSByte);
+  _WireObject.write(LSByte);
+  _WireObject.endTransmission(false);
 
   int32_t returnVal = 0;
-  _WireObject->requestFrom(_dspAddress, numberOfBytes);
+  _WireObject.requestFrom(_dspAddress, numberOfBytes);
   for(uint8_t i = 0; i < numberOfBytes; i++)
-    returnVal = returnVal << 8 | _WireObject->read();
+    returnVal = returnVal << 8 | _WireObject.read();
 
   return returnVal;
 }
@@ -1122,15 +1085,15 @@ uint32_t SigmaDSP::readRegister(dspRegister reg, uint8_t numberOfBytes)
   uint8_t LSByte = (uint8_t)reg & 0xFF;
   uint8_t MSByte = reg >> 8;
 
-  _WireObject->beginTransmission(_dspAddress); // Begin write
-  _WireObject->write(MSByte); // Send high address
-  _WireObject->write(LSByte); // Send low address
-  _WireObject->endTransmission(false);
+  _WireObject.beginTransmission(_dspAddress); // Begin write
+  _WireObject.write(MSByte); // Send high address
+  _WireObject.write(LSByte); // Send low address
+  _WireObject.endTransmission(false);
 
   uint32_t returnVal = 0;
-  _WireObject->requestFrom(_dspAddress, numberOfBytes);
+  _WireObject.requestFrom(_dspAddress, numberOfBytes);
   for(uint8_t i = 0; i < numberOfBytes; i++)
-    returnVal = returnVal << 8 | _WireObject->read();
+    returnVal = returnVal << 8 | _WireObject.read();
 
   return returnVal;
 }
