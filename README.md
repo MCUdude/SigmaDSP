@@ -41,7 +41,7 @@ There are some rules you need to follow in order for the script to work as inten
   
   
 ### Exporting a SigmaStudio project
-This guide assumes you created your project based on the __Tutorial_0__ project file, which is a blank project with a few pre-configured settings.
+This guide assumes you created your project based on the __0_Template__ project file, which is a blank project with a few pre-configured settings.
 * Start out by adding all the blocks you want in your project
 * Locate your SigmaStudio project folder. Open this and create a folder called **export**
 * **(Skip this step if not using EEPROM)** Open the Hardware configuration tab and add an external EEPROM device by draging the E2PROM symbol into the work space and connect it to USBi's second wire connector. Make sure the EEPROM size and address matches the actual address of the EEPROM. **The EEPROM module has to be named IC_2!**
