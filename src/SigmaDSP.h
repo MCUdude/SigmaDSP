@@ -135,20 +135,29 @@ class SigmaDSP
     // Template wrapper for safeload_writeRegister
     // Handles both int 28.0 and float 5.23 formatted parameters
     // Usage: safeload_write(uint16_t startMemoryAddress, data1, data2, ..., dataN);
-    template <typename Address, typename Data1, typename... DataN>
-    void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN);
+    //template <typename Address, typename Data1, typename... DataN>
+    //void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN);
 
-    void safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished);
-    void safeload_writeRegister(uint16_t memoryAddress,  int32_t data, bool finished);
-    void safeload_writeRegister(uint16_t memoryAddress,    float data, bool finished);
+    template <typename Address, typename Data1, typename... DataN>
+    void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN)
+    {
+      // Store passed address
+      _dspRegAddr = address;
+      safeload_write_wrapper(data1, dataN...);
+    }
+
+    void safeload_writeRegister(uint16_t memoryAddress,  uint8_t *data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress,   int32_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress,     float data, bool finished);
     #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
-    void safeload_writeRegister(uint16_t memoryAddress,  int16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+      void safeload_writeRegister(uint16_t memoryAddress, int16_t data, bool finished);
     #else
-    void safeload_writeRegister(uint16_t memoryAddress,      int data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+      void safeload_writeRegister(uint16_t memoryAddress,     int data, bool finished);
     #endif
-    void safeload_writeRegister(uint16_t memoryAddress, uint16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
-    void safeload_writeRegister(uint16_t memoryAddress,  uint8_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
-    void safeload_writeRegister(uint16_t memoryAddress,   double data, bool finished) { safeload_writeRegister(memoryAddress,   (float)data, finished); }
+    void safeload_writeRegister(uint16_t memoryAddress,  uint32_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress,  uint16_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress,   uint8_t data, bool finished);
+    void safeload_writeRegister(uint16_t memoryAddress,    double data, bool finished);
     void writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *data);
     void writeRegister(uint16_t memoryAddress, uint8_t length, const uint8_t *data);
     void writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const uint8_t *data, uint8_t registerSize);

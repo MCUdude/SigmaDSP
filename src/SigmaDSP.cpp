@@ -884,16 +884,6 @@ void SigmaDSP::muteDAC(bool mute)
 }
 
 
-template <typename Address, typename Data1, typename... DataN>
-void SigmaDSP::safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN)
-{
-  // Store passed address
-  _dspRegAddr = address;
-
-  safeload_write_wrapper(data1, dataN...);
-}
-
-
 /***************************************
 Function: safeload_writeRegister()
 Purpose:  Writes 5 bytes of data to the parameter memory of the DSP, the first byte is 0x00
@@ -944,6 +934,16 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, float data, bool f
   floatToFixed(data, dataArray);
   safeload_writeRegister(memoryAddress, dataArray, finished);
 }
+
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+  void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, int16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+#else
+  void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,     int data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+#endif
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,  uint32_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,  uint16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,   uint8_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
+void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,    double data, bool finished) { safeload_writeRegister(memoryAddress,   (float)data, finished); }
 
 
 /***************************************
