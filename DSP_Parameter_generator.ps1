@@ -259,7 +259,7 @@ $hexContent
 $dspProgramData
 
 /* Run this function to load DSP firmware directly */
-void loadProgram(SigmaDSP &myDSP)
+inline void loadProgram(SigmaDSP &myDSP)
 {
   myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data);
   myDSP.writeRegisterBlock(PROGRAM_ADDR, PROGRAM_SIZE, DSP_program_data, PROGRAM_REGSIZE);
