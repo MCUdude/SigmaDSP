@@ -2279,7 +2279,7 @@ const uint8_t PROGMEM DSP_core_register_R4_data[CORE_REGISTER_R4_SIZE] =
 
 
 /* Run this function to load DSP firmware directly */
-void loadProgram(SigmaDSP &myDSP)
+inline void loadProgram(SigmaDSP &myDSP)
 {
   myDSP.writeRegisterBlock(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data, CORE_REGISTER_R0_REGSIZE);
   myDSP.writeRegisterBlock(PROGRAM_ADDR, PROGRAM_SIZE, DSP_program_data, PROGRAM_REGSIZE);
