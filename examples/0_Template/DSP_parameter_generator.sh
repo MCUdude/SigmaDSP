@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e 
+set -e
 
 #####################################################################
 #             SIGMADSP PARAMETER FILE GENERATOR SCRIPT              #
@@ -60,7 +60,7 @@ then
   FILE_ERROR=false
 fi
 
-# DSP parameter file (*_IC_1_PARAM.h) 
+# DSP parameter file (*_IC_1_PARAM.h)
 DSP_PARAM_FILE=$(find $(dirname "$0") -name "*${SIGMA_STUDIO_PROJECT_NAME%%.*}_IC_1_PARAM.h")
 if [ "$DSP_PARAM_FILE" = "" ]
 then
@@ -97,10 +97,10 @@ BEGIN {
   # Add guards
   printf("#ifndef SIGMADSP_PARAMETERS_H\n")
   printf("#define SIGMADSP_PARAMETERS_H\n\n")
-  
+
   # Include SigmaDSP library
   printf("#include <SigmaDSP.h>\n\n")
-  
+
   # Print header
   printf("/****************************************************************************\n")
   printf("| Filename: SigmaDSP_parameters.h                                           |\n")
@@ -144,7 +144,7 @@ BEGIN {
   printf("| EEPROM, you can simply run loadProgram() (located at the bottom of this   |\n")
   printf("| file) where you pass the SigmaDSP object as the only parameter.           |\n")
   printf("****************************************************************************/\n\n\n")
-  
+
   printf("/* 7-bit i2c addresses */\n")
 }
 
@@ -152,8 +152,8 @@ BEGIN {
   # Track down the DSP and EEPROM i2c addresses and convert them into 7-bit
   if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_1")
     printf("%s DSP_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $1, $3)
-  
-  if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")  
+
+  if ($1 ~ "#define" && $2 ~ "DEVICE_ADDR_IC_2")
     printf("%s EEPROM_I2C_ADDRESS (%.4s >> 1) & 0xFE\n", $1, $3)
 } ' "$DSP_PROGRAM_FILE" "$EEPROM_PROGRAM_FILE" > "$(dirname "$0")/SigmaDSP_parameters.h"
 
@@ -166,9 +166,9 @@ echo -e "\x1B[31m"
 awk '
 {
   sub("\r","") # Get rid of all CR characters from the input file
-  
+
   # Print out each module comment
-  if ($0 ~ "/* Module.") 
+  if ($0 ~ "/* Module.")
     printf("\n%s\n", $0)
 
   # Print every line where column two ends with _COUNT
@@ -176,7 +176,7 @@ awk '
     printf("%s %s %s\n\n", $1, $2, $3)
 
   # Print every line where column two ends with _ADDR
-  if ($2 ~ "._ADDR$")  
+  if ($2 ~ "._ADDR$")
     printf("%s\n", $0)
 
   # Print column 1, 2 and only the number between the parenthesis on the line where column two ends with _VALUES
@@ -184,7 +184,7 @@ awk '
     printf("%s %s %s\n", $1, $2, substr($3, match($3, /\(/) + 1, match($3, /\)/) - (match($3, /\(/)) - 1))
 
   # Print every line where column two ends with _FIXPT
-  if ($2 ~ "._FIXPT$") 
+  if ($2 ~ "._FIXPT$")
     printf("%s\n\n", $0)
 } ' "$DSP_PARAM_FILE" >> "$(dirname "$0")/SigmaDSP_parameters.h"
 
@@ -192,7 +192,7 @@ awk '
 
 # Skip EEPROM array if file is not present
 if [ "$EEPROM_HEXFILE" != "" ]
-then  
+then
   # Generate C style array out from passed hex file
   echo -e "\x1B[0mExtract and format EEPROM array from"
   echo -e "\x1B[1m$EEPROM_HEXFILE"
@@ -200,14 +200,14 @@ then
   awk '
   BEGIN {
     FS=" * , *"
-    RS="^$"  
+    RS="^$"
     printf("\n\n/* This array contains the entire DSP program,\nand should be loaded into the external i2c EEPROM */\n\n")
   }
-  
+
   {
-    printf("#define EEPROM_SIZE " NF-1 "\n\n")
-    printf("const uint8_t PROGMEM DSP_eeprom_firmware[EEPROM_SIZE] =\n{\n")
-    for(i = 1; i < NF; i++) 
+    printf("#define EE_SIZE " NF-1 "\n\n")
+    printf("const uint8_t PROGMEM DSP_eeprom_firmware[EE_SIZE] =\n{\n")
+    for(i = 1; i < NF; i++)
     {
       sub("\r","") # Get rid of all CR characters from the input file
       printf("%s", $i ", ")
@@ -233,37 +233,37 @@ BEGIN {
 
 {
   sub("\r","\n") # Get rid of all CR characters from the input file
-  
+
   if (NR >= 28) # Start from line 28
   {
     # Print out relevant comments
     if ($0 ~ "/* DSP." || $0 ~"/* Register.")
-      printf("\n%s\n", $0)         
-    
+      printf("\n%s\n", $0)
+
     if ($2 == "PROGRAM_SIZE_IC_1")
       printf("#define PROGRAM_SIZE %s\n", $3)
-      
+
     if ($2 == "PROGRAM_ADDR_IC_1")
     {
       printf("#define PROGRAM_ADDR %s\n", $3)
       printf("#define PROGRAM_REGSIZE 5\n\n")
     }
-        
+
     if ($1 == "ADI_REG_TYPE" && $2 ~ "Program_Data.")
-      printf("const uint8_t PROGMEM DSP_program_data[PROGRAM_SIZE] = \n{\n")  
-        
+      printf("const uint8_t PROGMEM DSP_program_data[PROGRAM_SIZE] = \n{\n")
+
     if ($2 == "PARAM_SIZE_IC_1")
       printf("#define PARAMETER_SIZE %s\n", $3)
-      
+
     if ($2 == "PARAM_ADDR_IC_1")
     {
       printf("#define PARAMETER_ADDR %s\n", $3)
       printf("#define PARAMETER_REGSIZE 4\n\n")
     }
-    
+
     if ($1 == "ADI_REG_TYPE" && $2 ~ "Param_Data.")
       printf("const uint8_t PROGMEM DSP_parameter_data[PARAMETER_SIZE] = \n{\n")
-         
+
     if ($1 == "ADI_REG_TYPE" && $2 ~ "R0_COREREGISTER.")
     {
       printf("#define CORE_REGISTER_R0_SIZE 2\n")
@@ -271,17 +271,17 @@ BEGIN {
       printf("#define CORE_REGISTER_R0_REGSIZE 2\n\n")
       printf("const uint8_t PROGMEM DSP_core_register_R0_data[CORE_REGISTER_R0_SIZE] = \n{\n")
     }
-    
+
     if ($2 == "R3_HWCONFIGURATION_IC_1_SIZE")
     {
       printf("#define HARDWARE_CONF_SIZE %s\n", $3)
       printf("#define HARDWARE_CONF_ADDR 0x081C\n")
       printf("#define HARDWARE_CONF_REGSIZE 1\n\n")
     }
-    
+
     if ($1 == "ADI_REG_TYPE" && $2 ~ "R3_HWCONFIGURATION.")
       printf("const uint8_t PROGMEM DSP_hardware_conf_data[HARDWARE_CONF_SIZE] = \n{\n")
-    
+
     if ($1 == "ADI_REG_TYPE" && $2 ~ "R4_COREREGISTER.")
     {
       printf("#define CORE_REGISTER_R4_SIZE 2\n")
@@ -289,19 +289,19 @@ BEGIN {
       printf("#define CORE_REGISTER_R4_REGSIZE 2\n\n")
       printf("const uint8_t PROGMEM DSP_core_register_R4_data[CORE_REGISTER_R4_SIZE] = \n{\n")
     }
-       
+
     # Print out all lines that thats with 0x
     if ($1 ~ "0x.")
       printf($0)
-    
+
     # Print out all end brackets
     if ($1 ~ "}.")
       printf("%s\n\n", $0)
-    
-    # Escape  
+
+    # Escape
     if ($1 == "*")
       {exit}
-  }   
+  }
 }
 
 END {
