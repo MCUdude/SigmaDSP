@@ -306,7 +306,11 @@ BEGIN {
 
 END {
   printf("\n")
-  printf("/* Run this function to load DSP firmware directly */\n")
+  printf("/**")
+  printf("* @brief Function to load DSP firmware from the microcontroller flash memory")
+  printf("*")
+  printf("* @param myDSP SigmaDSP object")
+  printf("*/")
   printf("inline void loadProgram(SigmaDSP &myDSP)\n")
   printf("{\n")
   printf("  myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data);\n")

@@ -21,7 +21,7 @@ class DSPEEPROM
     const uint16_t _kbitSize;         // Size of our EEPROM in kilobits
     const int8_t _ledPin;             // Pin to toggle while writing to EEPROM
 
-    uint16_t _firmwareVersionAddress; // Holds the current DSP firmware version  
+    uint16_t _firmwareVersionAddress; // Holds the current DSP firmware version
     uint8_t ledCounter = 0x00;        // Keeps track of the LED toggle speed
 };
 

@@ -1,15 +1,13 @@
 #include "DSPEEPROM.h"
 
-
-/***************************************
-Function: DSPEEPROM()
-Purpose:  The constructor creates the object
-Inputs:   TwoWire &WireObject; Reference to Wire object
-          uint8_t i2cAddress;  7-bit i2c address
-          uint16_t kbitSize;   Size of EEPROM in kilobit
-          int8_t ledPin;       Pin to toggle when flashing EEPROM
-Returns:  None
-***************************************/
+/**
+ * @brief Constructs a new DSPEEPROM::DSPEEPROM object
+ * 
+ * @param WireObject TwoWire i2c object
+ * @param i2cAddress 7-bit EEPROM i2c address
+ * @param kbitSize Size of EEPROM in kilobit
+ * @param ledPin Pin to toggle when flashing EEPROM (optional parameter)
+ */
 DSPEEPROM::DSPEEPROM(TwoWire &WireObject,uint8_t i2cAddress, uint16_t kbitSize, int8_t ledPin)
   : _WireObject(WireObject), _eepromAddress(i2cAddress), _kbitSize(kbitSize), _ledPin(ledPin)
 {  
@@ -35,11 +33,9 @@ DSPEEPROM::DSPEEPROM(TwoWire &WireObject,uint8_t i2cAddress, uint16_t kbitSize, 
 }
 
 
-/***************************************
-Function: begin()
-Purpose:  Starts the i2c interface
-Returns:  None
-***************************************/
+/**
+ * @brief Starts the i2c interface
+ */
 void DSPEEPROM::begin()
 {
   // If LED is present
@@ -51,16 +47,15 @@ void DSPEEPROM::begin()
 }
 
 
-
-/***************************************
-Function: ping()
-Purpose:  Sends a i2c ping message
-Inputs:   none
-Returns:  0 - success: ack received
-          2 - error: address send, nack received
-          3 - error: data send, nack received
-          4 - error: unknown i2c error
-***************************************/
+/**
+ * @brief Sends an i2c ping message
+ * 
+ * @return ping receive status;
+ *         0 - sucess: ack received;
+ *         2 - error: address send, nack received;
+ *         3 - error: data send, nack received;
+ *         4 - error: unknown i2c error
+ */
 uint8_t DSPEEPROM::ping()
 {
   _WireObject.beginTransmission(_eepromAddress);
@@ -68,13 +63,12 @@ uint8_t DSPEEPROM::ping()
 }
 
 
-/***************************************
-Function: getFirmwareVersion()
-Purpose:  Returns the version number of the DSP firmware
-Inputs:   None
-Returns:  Firmware version. 0 indicated that no EEPROM is found,
-          255 indicates that the EEPROM is empty
-***************************************/
+/**
+ * @brief Returns the user defined version number of the DSP firmware
+ * 
+ * @return uint8_t uirmware version. 0 indicated that no EEPROM is found, 
+           255 indicates that the EEPROM is empty
+ */
 uint8_t DSPEEPROM::getFirmwareVersion()
 {  
   _WireObject.beginTransmission(_eepromAddress);
@@ -91,16 +85,15 @@ uint8_t DSPEEPROM::getFirmwareVersion()
 }
 
 
-/***************************************
-Function: writeFirmware()
-Purpose:  Writes the passed firmware array to the EEPROM and verifies
+/**
+ * @brief Writes the passed firmware array to the EEPROM and verifies
           that the content was written.
-Inputs:   uint8_t *firmware;       Array to hold the firmware to flash
-          uint16_t size;           Firmware array length (use sizeof)
-          int8_t firmwareVersion;  Version of the DSP firmware to store
-Returns:  True if writing succeeded and content was verified to be correct, 
-          false otherwise
-***************************************/
+ * 
+ * @param firmware Array to hold the firmware to flash
+ * @param size Firmware array length (use sizeof)
+ * @param firmwareVersion Version of the DSP firmware to store(between 1 and 254)
+ * @return True if writing succeeded and content was verified to be correct, false otherwise 
+ */
 uint8_t DSPEEPROM::writeFirmware(const uint8_t *firmware, uint16_t size, int8_t firmwareVersion)
 {
   // Check if EEPROM already contains the current firmware version

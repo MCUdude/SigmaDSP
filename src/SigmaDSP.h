@@ -3,13 +3,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <stdint.h>
 #include "parameters.h"
 #include "DSPEEPROM.h"
 
 // Only ADAU1701 is supported at the moment
 #define ADAU1701 0
 
-// Hardware register constants
+/**
+ * @brief ADAU1701 hardware register constants
+ * 
+ */
 typedef enum
 {
   InterfaceRegister0       = 0x0800,
@@ -131,13 +135,15 @@ class SigmaDSP
     int32_t floatToInt(float value);
 
     // DSP data write methods
-
-    // Template wrapper for safeload_writeRegister
-    // Handles both int 28.0 and float 5.23 formatted parameters
-    // Usage: safeload_write(uint16_t startMemoryAddress, data1, data2, ..., dataN);
-    //template <typename Address, typename Data1, typename... DataN>
-    //void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN);
-
+    /**
+     * @brief Template wrapper for safeload_writeRegister.
+     *        Handles both int 28.0 and float 5.23 formatted parameters.
+     *        You can add as many data parameters as you want
+     * 
+     * @param address DSP memory address
+     * @param data1 First value to write
+     * @param dataN Nth value to write
+     */
     template <typename Address, typename Data1, typename... DataN>
     void safeload_write(const Address &address, const Data1 &data1, const DataN &...dataN)
     {
@@ -195,6 +201,5 @@ class SigmaDSP
     // Private variables
     uint16_t _dspRegAddr;      // Used by template safeload functions
 };
-
 
 #endif //SIGMADSP_H

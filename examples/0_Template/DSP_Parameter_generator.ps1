@@ -258,7 +258,11 @@ $hexContent
 
 $dspProgramData
 
-/* Run this function to load DSP firmware directly */
+/**
+ * @brief Function to load DSP firmware from the microcontroller flash memory
+ * 
+ * @param myDSP SigmaDSP object
+ */
 inline void loadProgram(SigmaDSP &myDSP)
 {
   myDSP.writeRegister(CORE_REGISTER_R0_ADDR, CORE_REGISTER_R0_SIZE, DSP_core_register_R0_data);

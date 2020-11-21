@@ -11,9 +11,11 @@
 #define pi 3.1415926f
 
 
-// DSP function parameters
-// This is where all the usable constant DSP parameters are located.
-// You can can use this like so: parameters::phase::inverted
+/**
+ * @brief DSP function parameters. 
+ *        This is where all the usable constant DSP parameters are located.
+ *        You can use it like so: parameters::phase::inverted
+ */
 namespace parameters 
 {
   enum filterType {
