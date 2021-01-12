@@ -7,7 +7,7 @@
 | a master volume slider.                      |
 |                                              |
 | See the SigmaStudio project file if you want |
-| to learn more, tweak or do modifications.    | 
+| to learn more, tweak or do modifications.    |
 |**********************************************/
 
 // Include Wire and SigmaDSP library
@@ -20,9 +20,9 @@
 
 // The first parameter is the Wire object we'll be using when communicating wth the DSP
 // The second parameter is the DSP i2c address, which is defined in the parameter file
-// The third parameter is the SigmaDSP type
+// The third parameter is the sample rate
 // An optional fourth parameter is the pin to physically reset the DSP
-SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
+SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, 48000.00f /*,12*/);
 
 
 // Only needed if an external i2c EEPROM is present + the DSP is in selfboot mode
@@ -39,8 +39,8 @@ secondOrderEQ eqBand2;
 secondOrderEQ eqBand3;
 secondOrderEQ eqBand4;
 
-void setup() 
-{  
+void setup()
+{
   Serial.begin(9600);
   Serial.println(F("3_Second_order_EQ example\n"));
 
@@ -50,14 +50,14 @@ void setup()
 
   delay(2000);
 
-  
+
   Serial.println(F("Pinging i2c lines...\n0 -> deveice is present\n2 -> device is not present"));
   Serial.print(F("DSP response: "));
   Serial.println(dsp.ping());
   //Serial.print(F("EEPROM ping: "));
   //Serial.println(ee.ping());
-  
- 
+
+
   // Use this step if no EEPROM is present
   Serial.print(F("\nLoading DSP program... "));
   loadProgram(dsp);
@@ -93,8 +93,8 @@ void setup()
 }
 
 
-void loop() 
-{ 
+void loop()
+{
   // Adjust band 1
   Serial.println(F("+10dB boost at 80Hz (band1)"));
   eqBand1.freq = 80;
@@ -154,5 +154,5 @@ void loop()
     eqBand4.boost = i;
     dsp.EQsecondOrder(MOD_MIDEQ1_ALG0_STAGE3_B0_ADDR, eqBand4);
     delay(500);
-  } 
+  }
 }

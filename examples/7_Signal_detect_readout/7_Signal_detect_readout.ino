@@ -6,7 +6,7 @@
 | This example we use the DSP to boost the bass |
 | using the Dynamic enhancement block.          |
 | See the SigmaStudio project file if you want  |
-| to learn more, tweak or do modifications.     | 
+| to learn more, tweak or do modifications.     |
 |***********************************************/
 
 // Include Wire and SigmaDSP library
@@ -19,9 +19,9 @@
 
 // The first parameter is the Wire object we'll be using when communicating wth the DSP
 // The second parameter is the DSP i2c address, which is defined in the parameter file
-// The third parameter is the SigmaDSP type
+// The third parameter is the sample rate
 // An optional fourth parameter is the pin to physically reset the DSP
-SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
+SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, 48000.00f /*,12*/);
 
 
 // Only needed if an external i2c EEPROM is present + the DSP is in selfboot mode
@@ -37,8 +37,8 @@ uint32_t previousLevelRight = 1;
 uint32_t currentLevelLeft = 0;
 uint32_t currentLevelRight = 0;
 
-void setup() 
-{  
+void setup()
+{
   Serial.begin(9600);
   Serial.println(F("7_Signal_detect_readout example\n"));
 
@@ -48,7 +48,7 @@ void setup()
 
   delay(2000);
 
-  
+
   Serial.println(F("Pinging i2c bus...\n0 -> deveice is present\n2 -> device is not present"));
   Serial.print(F("DSP response: "));
   Serial.println(dsp.ping());
@@ -77,7 +77,7 @@ void setup()
 }
 
 
-void loop() 
+void loop()
 {
   // Read the signal detect block for each channel
   currentLevelLeft  = dsp.readBack(MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_ADDR,  MOD_SIGNAL_DETECTION_READOUT_LEFT_ALG0_VAL0_VALUES,  3);

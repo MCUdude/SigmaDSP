@@ -1,12 +1,6 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-
-// Sample rate constants
-#define FS 48000.00f
-#define SR (uint32_t)(1.0f/FS)
-
-
 // Math constants
 #define pi 3.1415926f
 

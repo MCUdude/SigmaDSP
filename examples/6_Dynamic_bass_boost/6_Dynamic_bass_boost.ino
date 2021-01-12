@@ -19,9 +19,9 @@
 
 // The first parameter is the Wire object we'll be using when communicating wth the DSP
 // The second parameter is the DSP i2c address, which is defined in the parameter file
-// The third parameter is the SigmaDSP type
+// The third parameter is the sample rate
 // An optional fourth parameter is the pin to physically reset the DSP
-SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
+SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, 48000.00f /*,12*/);
 
 
 // Only needed if an external i2c EEPROM is present + the DSP is in selfboot mode

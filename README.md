@@ -19,7 +19,7 @@ On the other side many of the modules are fairly easy to reverse engineer, and c
   
    
 ## Supported DSPs
-Only the ADAU1701 is supported for now. I'm planing to add the ADAU1442/ADAU1445/ADAU1446 in the future.
+Only the ADAU1701, ADAU1702 and ADAU1401 are supported.
   
   
 ## Exporting a SigmaStudio project for use with the SigmaDSP library

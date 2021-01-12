@@ -6,7 +6,7 @@
 | This example we use the DSP as a crude       |
 | Signal generator.                            |
 | See the SigmaStudio project file if you want |
-| to learn more, tweak or do modifications.    | 
+| to learn more, tweak or do modifications.    |
 |**********************************************/
 
 // Include Wire and SigmaDSP library
@@ -19,9 +19,9 @@
 
 // The first parameter is the Wire object we'll be using when communicating wth the DSP
 // The second parameter is the DSP i2c address, which is defined in the parameter file
-// The third parameter is the SigmaDSP type
+// The third parameter is the sample rate
 // An optional fourth parameter is the pin to physically reset the DSP
-SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
+SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, 48000.00f /*,12*/);
 
 
 // Only needed if an external i2c EEPROM is present + the DSP is in selfboot mode
@@ -34,8 +34,8 @@ SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, ADAU1701 /*,12*/);
 // Variable to store calculated sweep tone
 uint16_t frequency;
 
-void setup() 
-{  
+void setup()
+{
   Serial.begin(9600);
   Serial.println(F("5_Signal_generator example\n"));
 
@@ -45,14 +45,14 @@ void setup()
 
   delay(2000);
 
-  
+
   Serial.println(F("Pinging i2c bus...\n0 -> deveice is present\n2 -> device is not present"));
   Serial.print(F("DSP response: "));
   Serial.println(dsp.ping());
   //Serial.print(F("EEPROM ping: "));
   //Serial.println(ee.ping());
-  
- 
+
+
   // Use this step if no EEPROM is present
   Serial.print(F("\nLoading DSP program... "));
   loadProgram(dsp);
@@ -70,7 +70,7 @@ void setup()
 }
 
 
-void loop() 
+void loop()
 {
   Serial.println(F("Sine sweep"));
   dsp.mux(MOD_WAVEFORM_SELECT_MONOSWSLEW_ADDR, 0);

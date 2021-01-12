@@ -7,14 +7,14 @@
 
 /**
  * @brief Construct a new SigmaDSP::SigmaDSP object
- * 
+ *
  * @param WireObject TwoWire i2c object
  * @param i2cAddress 7-bit i2c address
- * @param device The DSP type in use
+ * @param sample_freq The audio sample frequency in [Hz]
  * @param resetPin pin to reset the DSP with (optional parameter)
  */
-SigmaDSP::SigmaDSP(TwoWire &WireObject, uint8_t i2cAddress, uint8_t device, int8_t resetPin)
-  : _WireObject(WireObject), _dspAddress(i2cAddress), _deviceType(device), _resetPin(resetPin)
+SigmaDSP::SigmaDSP(TwoWire &WireObject, uint8_t i2cAddress, float sample_freq, int8_t resetPin)
+  : FS(sample_freq), _WireObject(WireObject), _dspAddress(i2cAddress), _resetPin(resetPin)
 {
 
 }
@@ -37,7 +37,7 @@ void SigmaDSP::begin()
 
 /**
  * @brief Sets the i2c clock speed
- * 
+ *
  * @param clock i2c clock speed in [Hz]
  */
 void SigmaDSP::i2cClock(uint32_t clock)
@@ -62,7 +62,7 @@ void SigmaDSP::reset()
 
 /**
  * @brief Sends an i2c ping message
- * 
+ *
  * @return ping receive status;
  *         0 - success: ack received;
  *         2 - error: address send, nack received;
@@ -78,7 +78,7 @@ uint8_t SigmaDSP::ping()
 
 /**
  * @brief Controls a mux. The mux can only be a single address block, which is the clickless SW slew mux
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param index Index (the signal) you want to switch to (0, 1, 2, ..., N)
  * @param numberOfIndexes The total number of indexes (2 or more)
@@ -94,7 +94,7 @@ void SigmaDSP::mux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfI
 
 /**
  * @brief Controls a demux
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param index Index (the signal) you want to switch to (0, 1, 2, ..., N)
  * @param numberOfIndexes The total number of indexes (2 or more)
@@ -119,7 +119,7 @@ void SigmaDSP::demux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberO
 
 /**
  * @brief Adjusts a gain block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param gain Gain value (1 = 0dB gain, 2 = +6dB gain)
  * @param channels Number of channels this gain cell has (defaults to 1 if not defined)
@@ -134,7 +134,7 @@ void SigmaDSP::gain(uint16_t startMemoryAddress, float gain, uint8_t channels)
 
 /**
  * @brief Adjusts a gain block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param gain Gain value (1 = 0dB gain, 2 = +6dB gain)
  * @param channels Number of channels this gain cell has (defaults to 1 if not defined)
@@ -153,7 +153,7 @@ void SigmaDSP::gain(uint16_t startMemoryAddress, int32_t gain, uint8_t channels)
 
 /**
  * @brief Controls a volume control block with slew
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param dB Volume to set in dB
  * @param slew slew rate (optional parameter, default 12)
@@ -169,7 +169,7 @@ void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
 
 /**
  * @brief Controls the dynamic bass boost level block in dB
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param dB Bass boost level in dB (0 to +20dB)
  */
@@ -183,7 +183,7 @@ void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB)
 
 /**
  * @brief Controls a hard clip block with separate negative and positive thresholds
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param highThreshold High threshold (0.0 to 1.0)
  * @param lowThreshold Low threshold (-1.0 to 0.0)
@@ -196,7 +196,7 @@ void SigmaDSP::hardClip(uint16_t startMemoryAddress, float highThreshold, float 
 
 /**
  * @brief Controls a soft clip block with adjustable curve
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param alpha Clipping coefficient (0.1 to 10.0)
  */
@@ -211,7 +211,7 @@ void SigmaDSP::softClip(uint16_t startMemoryAddress, float alpha)
 
 /**
  * @brief Controls a DC source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param level DC value level range (-1.0 to 1.0)
  */
@@ -223,7 +223,7 @@ void SigmaDSP::dcSource(uint16_t startMemoryAddress, float level)
 
 /**
  * @brief Controls a sine wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sine wave frequency in [Hz]
  */
@@ -236,7 +236,7 @@ void SigmaDSP::sineSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a sine wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sine wave frequency in [Hz]
  */
@@ -251,7 +251,7 @@ void SigmaDSP::sineSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls a square wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Square wave frequency in [Hz]
  */
@@ -260,7 +260,7 @@ void SigmaDSP::squareSource(uint16_t startMemoryAddress, float frequency) { sine
 
 /**
  * @brief Controls a sine wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Square wave frequency in [Hz]
  */
@@ -269,7 +269,7 @@ void SigmaDSP::squareSource(uint16_t startMemoryAddress, int32_t frequency) { si
 
 /**
  * @brief Controls a sawtooth source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sawtooth frequency in [Hz]
  */
@@ -283,7 +283,7 @@ void SigmaDSP::sawtoothSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a sawtooth source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sawtooth frequency in [Hz]
  */
@@ -298,7 +298,7 @@ void SigmaDSP::sawtoothSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls a triangle wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Triangle wave frequency in [Hz]
  */
@@ -312,7 +312,7 @@ void SigmaDSP::triangleSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a triangle wave source block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Triangle wave frequency in [Hz]
  */
@@ -327,12 +327,12 @@ void SigmaDSP::triangleSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls an audio delay block
- * 
- * Delay ranges: 
+ *
+ * Delay ranges:
  * 0.0-42.6ms (ADAU170x) @ 48kHz;
  * 0.0-21.3ms (ADAU170x) @ 96kHz;
- * 0.0-10.6ms (ADAU170x) @ 192kHz; 
- * 
+ * 0.0-10.6ms (ADAU170x) @ 192kHz;
+ *
  * WARNING! Delays calculated are theoretical assuming you
  * have 100% data memory available in your Sigma Studio design.
  * Data memory is shared among other blocks in Sigma Studio so
@@ -341,7 +341,7 @@ void SigmaDSP::triangleSource(uint16_t startMemoryAddress, int32_t frequency)
  * for its processing. The SigmaStudio compiler manages the data
  * RAM and indicates if the number of addresses needed in the
  * design exceeds the maximum available.
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param delayMs Delay value in [ms]
  */
@@ -358,7 +358,7 @@ void SigmaDSP::audioDelay(uint16_t startMemoryAddress, float delayMs)
 
 /**
  * @brief Controls a first order EQ block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param equalizer Equalizer parameter struct
  */
@@ -417,7 +417,7 @@ void SigmaDSP::EQfirstOrder(uint16_t startMemoryAddress, firstOrderEQ_t &equaliz
 
 /**
  * @brief Controls a second order EQ block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param equalizer Equalizer parameter struct
  */
@@ -594,7 +594,7 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
 
 /**
  * @brief Controls a baxandall low-high dual tone control block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param toneCtrl Tone control parameter struct
  */
@@ -668,7 +668,7 @@ void SigmaDSP::toneControl(uint16_t startMemoryAddress, toneCtrl_t &toneCtrl)
 
 /**
  * @brief Controls a state variable filter block
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param frequency Filter frequency (1 to 19148 Hz)
  * @param q Filter Q value (1.28 to 10.00)
@@ -685,7 +685,7 @@ void SigmaDSP::stateVariable(uint16_t startMemoryAddress, float frequency, float
 /**
  * @brief Calculates the curve and the other parameters of an RMS compressor block.
  *        Set ratio = 1 to disable compressor
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
  */
@@ -767,9 +767,9 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
 
 
 /**
- * @brief This function calculates the curve and the other parameters of a peak compressor block. 
+ * @brief This function calculates the curve and the other parameters of a peak compressor block.
           Set ratio = 1 to disable compressor
- * 
+ *
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
  */
@@ -842,7 +842,7 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
 
 /**
  * @brief Mutes the internal analog to digital converter in the DSP
- * 
+ *
  * @param mute Mute state. Muted if true, unmuted if false
  */
 void SigmaDSP::muteADC(bool mute)
@@ -866,7 +866,7 @@ void SigmaDSP::muteADC(bool mute)
 
 /**
  * @brief Mutes the internal digital to analog in the DSP
- * 
+ *
  * @param mute Mute state. Muted if true, unmuted if false
  */
 void SigmaDSP::muteDAC(bool mute)
@@ -890,7 +890,7 @@ void SigmaDSP::muteDAC(bool mute)
 
 /**
  * @brief Writes 5 bytes of data to the parameter memory of the DSP. The first byte is 0x00
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param data Data array to write
  * @param finished Indicates if this is the last packet or not
@@ -898,7 +898,7 @@ void SigmaDSP::muteDAC(bool mute)
 void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, bool finished)
 {
   static uint8_t _safeload_count = 0; // Keeps track of the safeload count
-  
+
   uint8_t addr[2]; // Address array
 
   addr[0] = (memoryAddress >> 8) & 0xFF;
@@ -926,7 +926,7 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, uint8_t *data, boo
 
 /**
  * @brief Writes 28.0 data to the parameter memory of the DSP.
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param data Data array to write
  * @param finished Indicates if this is the last packet or not
@@ -940,7 +940,7 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, int32_t data, bool
 
 /**
  * @brief Writes 5.23 data to the parameter memory of the DSP.
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param data Data array to write
  * @param finished Indicates if this is the last packet or not
@@ -965,7 +965,7 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,    double data, bo
 
 /**
  * @brief Writes data to the DSP (max 32 bytes a time due to the default i2c buffer size of the Wire library)
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param length Number of bytes to write
  * @param data Data array to write
@@ -989,7 +989,7 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, uint8_t *da
 
 /**
  * @brief Writes data to the DSP from PROGMEM (max 32 bytes a time due to the default i2c buffer size of the Wire library)
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param length Number of bytes to write
  * @param data Data array to write
@@ -1013,7 +1013,7 @@ void SigmaDSP::writeRegister(uint16_t memoryAddress, uint8_t length, const uint8
 
 /**
  * @brief Writes data to the DSP from PROGMEM
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param length Number of bytes to write
  * @param data Data array to write
@@ -1049,7 +1049,7 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
 
 /**
  * @brief Reads a DSP memory block
- * 
+ *
  * @param memoryAddress DSP memory address
  * @param readout Which register to read
  * @param numberOfBytes How manu bytes to read
@@ -1087,7 +1087,7 @@ int32_t SigmaDSP::readBack(uint16_t memoryAddress, uint16_t readout, uint8_t num
 
 /**
  * @brief Reads a DSP hardware register
- * 
+ *
  * @param reg DSP register address
  * @param numberOfBytes Number of bytes to read from the register
  * @return uint32_t value the register contains
@@ -1113,7 +1113,7 @@ uint32_t SigmaDSP::readRegister(dspRegister reg, uint8_t numberOfBytes)
 
 /**
  * @brief Converts a 5.23 float value to 5-byte HEX and stores it in the passed buffer
- * 
+ *
  * @param value Value to convert
  * @param buffer Buffer to store the converted data in
  */
@@ -1133,7 +1133,7 @@ void SigmaDSP::floatToFixed(float value, uint8_t *buffer)
 
 /**
  * @brief Converts a 28.0 integer value to 5-byte HEX and stores it the passed buffer
- * 
+ *
  * @param value Value to convert
  * @param buffer Buffer to store the converted data in
  */
@@ -1150,7 +1150,7 @@ void SigmaDSP::intToFixed(int32_t value, uint8_t *buffer)
 
 /**
  * @brief Converts a 5.23 float value to int 28.0
- * 
+ *
  * @param value Value to convert
  * @return int32_t converted value in 28.0 format
  */
@@ -1168,7 +1168,7 @@ int32_t SigmaDSP::floatToInt(float value)
 
 /**
  * @brief Calculates the points of a linearly spaced vector
- * 
+ *
  * @param x1 Start point
  * @param x2 End point
  * @param n Number of points to calculate
