@@ -168,16 +168,71 @@ void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
 
 
 /**
- * @brief Controls the dynamic bass boost level block in dB
+ * @brief Controls the dynamic bass boost level block in dB. This function lets you only set
+ * set the bass boost. The rest of the settings has to be preset in the SigmaStudio
+ * project file.
  *
  * @param startMemoryAddress DSP memory address
- * @param dB Bass boost level in dB (0 to +20dB)
+ * @param dB Ranges from 0 to +20dB. Represents the boost level
  */
 void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB)
 {
   float boost = pow(10, -dB / 20); // 10^(-dB / 20)
 
-  safeload_write(startMemoryAddress, boost);
+  // Set boost (8th memory address in this algorithm)
+  safeload_write(startMemoryAddress + 8, boost);
+}
+
+
+/**
+ * @brief Controls the dynamic bass boost level block where boost and frequency can be adjusted
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param dB Ranges from 0 to +20dB. Represents the boost level
+ * @param frequency Ranges from 20 to 300Hz and designates the center frequency for the boosting filter
+ */
+void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB, uint16_t frequency)
+{
+  // Formula found here: https://ez.analog.com/dsp/sigmadsp/f/q-a/65338/dynamic-bass-boost-basics
+  float omega       = 2 * pi * ((frequency * 3) / FS);
+  float alpha       = sin(omega)/(2 * 0.707);
+  float a0          = 1 + alpha;
+  float gain_lin    = 1.00;
+
+  float freq_varq   = 2 * pi * (frequency / FS);
+  float iir_coeff_0 = (1 - cos(omega)) * gain_lin / (2 * a0);
+  float iir_coeff_1 = (1 - cos(omega)) * gain_lin / a0;
+  float iir_coeff_2 = (1 - cos(omega)) * gain_lin / (2 * a0);
+  float iir_coeff_3 = (2 / a0) * cos(omega);
+  float iir_coeff_4 = (alpha - 1) / a0;
+  // Boost are independent from the frequency and iir coefficients
+  float boost       = pow(10, -dB / 20);
+
+  // Set frequency
+  safeload_write(startMemoryAddress, freq_varq, iir_coeff_0, iir_coeff_1, iir_coeff_2, iir_coeff_3, iir_coeff_4);
+  // Set boost (8th memory address in this algorithm)
+  safeload_write(startMemoryAddress + 8, boost);
+}
+
+
+/**
+ * @brief Controls the dynamic bass boost level block in where all parameters are adjustable
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param dB Ranges from 0 to +20dB. Represents the boost level
+ * @param frequency Ranges from 20 to 300Hz and designates the center frequency for the boosting filter
+ * @param threshold Ranges from -24 to +20dB . Any signal into the detector below threshold will not influence the boost calculation and receives a fixed enhancement
+ * @param time_constant Ranges from 0 to 500 milliseconds. It controls the RMS time constant of the detector. Attack and release time will get affected by this parameter
+ */
+void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB, uint16_t frequency, int16_t threshold, uint16_t time_constant)
+{
+  float tc = 1000 / (time_constant * FS);
+  float th = exp(0.029 * threshold);
+
+  // Set frequency and boost
+  dynamicBass(startMemoryAddress, dB, frequency);
+  // Set threshold and time constant
+  safeload_write(startMemoryAddress + 6, tc, th);
 }
 
 

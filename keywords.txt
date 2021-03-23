@@ -59,8 +59,8 @@ ping	KEYWORD2
 mux	KEYWORD2
 demux	KEYWORD2
 gain	KEYWORD2
-volumeMono_slew	KEYWORD2
-volumeStereo_slew	KEYWORD2
+volume_slew	KEYWORD2
+dynamicBass	KEYWORD2
 hardClip	KEYWORD2
 softClip	KEYWORD2
 dcSource	KEYWORD2

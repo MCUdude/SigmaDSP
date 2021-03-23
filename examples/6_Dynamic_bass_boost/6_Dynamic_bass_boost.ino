@@ -67,15 +67,24 @@ void setup()
 
 void loop()
 {
-  Serial.println(F("Set bass boost to 0dB"));
-  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_LOWLEVELBOOST_ADDR, 0);
+  Serial.println(F("Set bass boost to 0dB at 80Hz"));
+  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR, 0, 80);
   delay(5000);
 
-  Serial.println(F("Set bass boost to +10dB"));
-  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_LOWLEVELBOOST_ADDR, 10);
+  Serial.println(F("Set bass boost to +10dB at 60Hz"));
+  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR, 10, 60);
   delay(5000);
 
-  Serial.println(F("Set bass boost to +20dB"));
-  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_LOWLEVELBOOST_ADDR, 20);
+  Serial.println(F("Set bass boost to +20dB at 40Hz"));
+  dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR, 20, 40);
   delay(5000);
+
+  // There are also other variants of the dynamic bass function.
+  // This one only adjusts the boost level, and leaves all other parameters as they are:
+  // Set boost to +10dB
+  // dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR, 10);
+
+  // The other function exposes all available parameters present in Sigma Studio:
+  // Set boost to +10dB, frequency to 50Hz, threshold to -24dB and time constant to 100ms
+  // dsp.dynamicBass(MOD_DYNAMIC_BASS_ALG0_FREQUENCY_ADDR, 10, 50, -24, 100);
 }
