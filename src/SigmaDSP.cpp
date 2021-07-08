@@ -166,6 +166,32 @@ void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
   safeload_write(startMemoryAddress, volume, slewrate);
 }
 
+/**
+ * @brief Controls a volume control block without slew
+ * Can be used with various gain controls
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param dB Volume to set in dB
+ */
+void SigmaDSP::volume(uint16_t startMemoryAddress, float dB)
+{
+  float volume = pow(10, dB / 20); // 10^(dB / 20)
+
+  safeload_write(startMemoryAddress, volume);
+}
+
+/**
+ * @brief Control index filters (bass, treble, ect)
+ * in 28 0 format.   Please see:
+ * https://ez.analog.com/dsp/sigmadsp/f/q-a/165704/tone-control-using-adau1701-sigma-studio
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param Integer value in control field min -(number of steps/2) to +(number of steps/2)
+ */
+ void SigmaDSP::dcSource(uint16_t startMemoryAddress, uint32_t value)
+ {
+   safeload_write(startMemoryAddress, value);
+ }
 
 /**
  * @brief Controls the dynamic bass boost level block in dB. This function lets you only set

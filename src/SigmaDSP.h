@@ -73,6 +73,8 @@ class SigmaDSP
     void gain(uint16_t startMemoryAddress,         int8_t gainVal, uint8_t channels = 1) { gain(startMemoryAddress, (int32_t)gainVal, channels); }
 
     void volume_slew(uint16_t startMemoryAddress,   float dB, uint8_t slew = 12);
+    void volume(uint16_t startMemoryAddress,        float dB);
+    void dcSource(uint16_t startMemoryAddress,      uint32_t value);
     void dynamicBass(uint16_t startMemoryAddress,   float dB);
     void dynamicBass(uint16_t startMemoryAddress,   float dB, uint16_t frequency);
     void dynamicBass(uint16_t startMemoryAddress,   float dB, uint16_t frequency, int16_t threshold, uint16_t time_constant);
