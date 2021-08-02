@@ -531,7 +531,7 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
       a1 = -2*cos(w0);
       a2 = 1 - alpha;
       b0 = (1 - cos(w0)) * (gainLinear/2);
-      b1 = 1 - cos(w0)  * gainLinear;
+      b1 = (1 - cos(w0))  * gainLinear;
       b2 = (1 - cos(w0)) * (gainLinear/2);
       break;
 
@@ -575,7 +575,7 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
       a1 = -2*cos(w0);
       a2 = 1 - alpha;
       b0 = (1 - cos(w0)) * gainLinear / 2;
-      b1 = 1 - cos(w0) * gainLinear;
+      b1 = (1 - cos(w0)) * gainLinear;
       b2 = (1 - cos(w0)) * gainLinear / 2;
       break;
 
@@ -597,7 +597,7 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
       a1 = -2*cos(w0);
       a2 = 1 - alpha;
       b0 = (1 - cos(w0)) * gainLinear / 2;
-      b1 = 1 - cos(w0) * gainLinear;
+      b1 = (1 - cos(w0)) * gainLinear;
       b2 = (1 - cos(w0)) * gainLinear / 2;
       break;
 
