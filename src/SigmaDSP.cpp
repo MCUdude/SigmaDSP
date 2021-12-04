@@ -648,8 +648,8 @@ void SigmaDSP::EQsecondOrder(uint16_t startMemoryAddress, secondOrderEQ_t &equal
       coefficients[0] = b0/a0;
       coefficients[1] = b1/a0;
       coefficients[2] = b2/a0;
-      coefficients[3] = -1*a1/a0;
-      coefficients[4] = -1*a2/a0;
+      coefficients[3] = 1 * a1/a0;
+      coefficients[4] = 1 * a2/a0;
     }
     else //if(equalizer.phase == parameters::phase::inverted) // 180 deg
     {
