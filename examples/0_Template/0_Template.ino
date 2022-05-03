@@ -32,24 +32,25 @@ SigmaDSP dsp(Wire, DSP_I2C_ADDRESS, 48000.00f /*,12*/);
 //DSPEEPROM ee(Wire, EEPROM_I2C_ADDRESS, 256, LED_BUILTIN);
 
 
-void setup() 
-{  
+void setup()
+{
   Serial.begin(9600);
   Serial.println(F("SigmaDSP 0_Template example\n"));
 
+  Wire.begin();
   dsp.begin();
   //ee.begin();
 
   delay(2000);
 
-  
+
   Serial.println(F("Pinging i2c lines...\n0 -> deveice is present\n2 -> device is not present"));
   Serial.print(F("DSP response: "));
   Serial.println(dsp.ping());
   //Serial.print(F("EEPROM ping: "));
   //Serial.println(ee.ping());
-  
- 
+
+
   // Use this step if no EEPROM is present
   Serial.print(F("\nLoading DSP program... "));
   loadProgram(dsp);
@@ -64,7 +65,7 @@ void setup()
 }
 
 
-void loop() 
+void loop()
 {
   // Nothing to do here!
 }
