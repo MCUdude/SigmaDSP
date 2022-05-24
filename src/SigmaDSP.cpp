@@ -823,16 +823,16 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
   // TCms = (20/(dBps*2.3))*1000
 
   // RMS TC (dB/s)
-  dbps = (20/(compressor.attack*2.3))*1e3;
+  dbps = (20/(compressor.rms_tc*2.3))*1e3;
   attack_par = abs(1.0 - pow(10,(dbps/(10*FS))));
   floatToFixed(attack_par, storeData);
   safeload_writeRegister(startMemoryAddress++, storeData, true);
 
-  #ifdef COMPRESSORWITHPOSTGAIN
-    postgain_par = pow(10, compressor.postgain/40);
+  //#ifdef COMPRESSORWITHPOSTGAIN
+    postgain_par = pow(10, compressor.postgain/20);
     floatToFixed(postgain_par, storeData);
     safeload_writeRegister(startMemoryAddress++, storeData, true);
-  #endif
+  //#endif
 
   // Hold
   hold_par = compressor.hold*FS/1000;
@@ -840,7 +840,7 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
   safeload_writeRegister(startMemoryAddress++, storeData, true);
 
   // Decay (dB/s)
-  dbps = (20/(compressor.decayMs*2.3))*1e3;
+  dbps = (20/(compressor.decay*2.3))*1e3;
   decay_par = dbps/(96*FS);
   floatToFixed(decay_par, storeData);
   safeload_writeRegister(startMemoryAddress, storeData, true);
@@ -866,7 +866,6 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
   float coeff = 0.00;
 
   float dbps = 0.00;
-  //float attack_par = 0.00;
   float hold_par = 0.00;
   float decay_par = 0.00;
   float postgain_par = 0.00;
@@ -902,11 +901,11 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
     safeload_writeRegister(startMemoryAddress++, storeData, false);
   }
 
-  #ifdef COMPRESSORWITHPOSTGAIN
+ // #ifdef COMPRESSORWITHPOSTGAIN
     postgain_par = pow(10, compressor.postgain/40);
     floatToFixed(postgain_par, storeData);
     safeload_writeRegister(startMemoryAddress++, storeData, true);
-  #endif
+  //#endif
 
   // Hold
   hold_par = compressor.hold*FS/1000;
@@ -914,7 +913,7 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
   safeload_writeRegister(startMemoryAddress++, storeData, true);
 
   // Decay (dB/s)
-  dbps = (20/(compressor.decayMs*2.3))*1e3;
+  dbps = (20/(compressor.decay*2.3))*1e3;
   decay_par = dbps/(96*FS);
   floatToFixed(decay_par, storeData);
   safeload_writeRegister(startMemoryAddress, storeData, true);

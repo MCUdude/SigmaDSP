@@ -42,14 +42,13 @@ namespace parameters
 
 
 // Compressor typedef
-#define COMPRESSORWITHPOSTGAIN
 typedef struct compressor_t 
 {
   float threshold = 0.0; // -90 / +6 [dB]
   float ratio     = 1.0; // 1 - 100
-  float attack    = 1.0; // 1 - 500 [ms]
+  float rms_tc    = 1.0; // 1 - 500 [ms]
   float hold      = 0.0; // 0 - 500 [ms]
-  float decayMs   = 0.0; // 0 - 2000 [ms]
+  float decay     = 0.0; // 0 - 2000 [ms]
   float postgain  = 0.0; // -30 / +24 [dB]
 } compressor;
  
