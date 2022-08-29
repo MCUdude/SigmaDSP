@@ -181,6 +181,24 @@ void SigmaDSP::volume(uint16_t startMemoryAddress, float dB)
 }
 
 /**
+ * @brief control mute/unmute block without slew
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param flag true or false
+ */
+void SigmaDSP::mute(uint16_t startMemoryAddress, bool flag)
+{
+    if (flag)
+    {
+        safeload_write(startMemoryAddress, 8388608);
+    }
+    else
+    {
+        safeload_write(startMemoryAddress, 0);
+    }
+}
+
+/**
  * @brief Control index filters (bass, treble, ect)
  * in 28 0 format.   Please see:
  * https://ez.analog.com/dsp/sigmadsp/f/q-a/165704/tone-control-using-adau1701-sigma-studio
