@@ -74,6 +74,7 @@ class SigmaDSP
 
     void volume_slew(uint16_t startMemoryAddress,   float dB, uint8_t slew = 12);
     void volume(uint16_t startMemoryAddress,        float dB);
+    void mute(uint16_t startMemoryAddress,          bool state);
     void dcSource(uint16_t startMemoryAddress,      uint32_t value);
     void dynamicBass(uint16_t startMemoryAddress,   float dB);
     void dynamicBass(uint16_t startMemoryAddress,   float dB, uint16_t frequency);
