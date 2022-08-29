@@ -181,21 +181,14 @@ void SigmaDSP::volume(uint16_t startMemoryAddress, float dB)
 }
 
 /**
- * @brief control mute/unmute block without slew
+ * @brief Control mute/unmute block without slew
  *
  * @param startMemoryAddress DSP memory address
- * @param flag true or false
+ * @param state true or false
  */
-void SigmaDSP::mute(uint16_t startMemoryAddress, bool flag)
+void SigmaDSP::mute(uint16_t startMemoryAddress, bool state)
 {
-    if (flag)
-    {
-        safeload_write(startMemoryAddress, 8388608);
-    }
-    else
-    {
-        safeload_write(startMemoryAddress, 0);
-    }
+  safeload_write(startMemoryAddress, state ? 0x800000 : 0);
 }
 
 /**
