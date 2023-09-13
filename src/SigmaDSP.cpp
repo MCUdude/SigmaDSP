@@ -1143,7 +1143,7 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
  *
  * @param memoryAddress DSP memory address
  * @param readout Which register to read
- * @param numberOfBytes How manu bytes to read
+ * @param numberOfBytes How many bytes to read
  * @return int32_t value where four bytes in the block are concatenated
  */
 int32_t SigmaDSP::readBack(uint16_t memoryAddress, uint16_t readout, uint8_t numberOfBytes)
@@ -1168,7 +1168,7 @@ int32_t SigmaDSP::readBack(uint16_t memoryAddress, uint16_t readout, uint8_t num
   _WireObject.endTransmission(false);
 
   int32_t returnVal = 0;
-  _WireObject.requestFrom(_dspAddress, numberOfBytes);
+  _WireObject.requestFrom(_dspAddress, numberOfBytes, (uint8_t)0);
   for(uint8_t i = 0; i < numberOfBytes; i++)
     returnVal = returnVal << 8 | _WireObject.read();
 
