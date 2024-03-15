@@ -78,6 +78,8 @@ uint8_t SigmaDSP::ping()
 
 /**
  * @brief Controls a mux. The mux can only be a single address block, which is the clickless SW slew mux
+ * SigmaStudio path:
+ * Muxes/Demuxes > Multiplexers > Switch > Clickless S Slew > 1/2 Ch > Mono/Stereo Switch Nx1/2
  *
  * @param startMemoryAddress DSP memory address
  * @param index Index (the signal) you want to switch to (0, 1, 2, ..., N)
@@ -93,7 +95,9 @@ void SigmaDSP::mux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfI
 
 
 /**
- * @brief Controls a demux
+ * @brief Controls a demux, both with and without slew
+ * SigmaStudio path:
+ * Muxes/Demuxes > Demultiplexers > No Slew (Standard) / Clickless SW slew > 1/2 Ch > Mono/Stereo Switch Nx1/2
  *
  * @param startMemoryAddress DSP memory address
  * @param index Index (the signal) you want to switch to (0, 1, 2, ..., N)
@@ -119,6 +123,8 @@ void SigmaDSP::demux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberO
 
 /**
  * @brief Adjusts a gain block
+ * SigmaStudio path:
+ * Basic DSP > Adjustable Gain > Single/Multiple Controls > No Slew (Standard) > Gain
  *
  * @param startMemoryAddress DSP memory address
  * @param gain Gain value (1 = 0dB gain, 2 = +6dB gain)
@@ -134,6 +140,8 @@ void SigmaDSP::gain(uint16_t startMemoryAddress, float gain, uint8_t channels)
 
 /**
  * @brief Adjusts a gain block
+ * SigmaStudio path:
+ * Basic DSP > Adjustable Gain > Single/Multiple Controls > No Slew (Standard) > Gain
  *
  * @param startMemoryAddress DSP memory address
  * @param gain Gain value (1 = 0dB gain, 2 = +6dB gain)
@@ -153,6 +161,8 @@ void SigmaDSP::gain(uint16_t startMemoryAddress, int32_t gain, uint8_t channels)
 
 /**
  * @brief Controls a volume control block with slew
+ * SigmaStudio path:
+ * Volume Controls > Adjustable Gain > Shared Slider > Clickless SW Slew (RC) > Single SW Slew vol (adjustable)
  *
  * @param startMemoryAddress DSP memory address
  * @param dB Volume to set in dB
@@ -169,6 +179,9 @@ void SigmaDSP::volume_slew(uint16_t startMemoryAddress, float dB, uint8_t slew)
 /**
  * @brief Controls a volume control block without slew
  * Can be used with various gain controls
+ * SigmaStudio path:
+ *
+ * Volume Controls > Adjustable Gain > Single/Multiple Controls > No Slew (Standard) > Single Volume
  *
  * @param startMemoryAddress DSP memory address
  * @param dB Volume to set in dB
@@ -182,6 +195,8 @@ void SigmaDSP::volume(uint16_t startMemoryAddress, float dB)
 
 /**
  * @brief Control mute/unmute block without slew
+ * SigmaStudio path:
+ * Volume Controls > Mute > No Slew (Standard) > Mute
  *
  * @param startMemoryAddress DSP memory address
  * @param state true or false
@@ -208,6 +223,8 @@ void SigmaDSP::mute(uint16_t startMemoryAddress, bool state)
  * @brief Controls the dynamic bass boost level block in dB. This function lets you only set
  * set the bass boost. The rest of the settings has to be preset in the SigmaStudio
  * project file.
+ * SigmaStudio path:
+ * ADI Algorithms > Dynamic Bass > Mono/Stereo > Dynamic Bass Enhancement
  *
  * @param startMemoryAddress DSP memory address
  * @param dB Ranges from 0 to +20dB. Represents the boost level
@@ -223,6 +240,8 @@ void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB)
 
 /**
  * @brief Controls the dynamic bass boost level block where boost and frequency can be adjusted
+ * SigmaStudio path:
+ * ADI Algorithms > Dynamic Bass > Mono/Stereo > Dynamic Bass Enhancement
  *
  * @param startMemoryAddress DSP memory address
  * @param dB Ranges from 0 to +20dB. Represents the boost level
@@ -254,6 +273,8 @@ void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB, uint16_t frequ
 
 /**
  * @brief Controls the dynamic bass boost level block in where all parameters are adjustable
+ * SigmaStudio path:
+ * ADI Algorithms > Dynamic Bass > Mono/Stereo > Dynamic Bass Enhancement
  *
  * @param startMemoryAddress DSP memory address
  * @param dB Ranges from 0 to +20dB. Represents the boost level
@@ -275,6 +296,8 @@ void SigmaDSP::dynamicBass(uint16_t startMemoryAddress, float dB, uint16_t frequ
 
 /**
  * @brief Controls a hard clip block with separate negative and positive thresholds
+ * SigmaStudio path:
+ * Non Linear Processors > Clippers > Hard Clip > Standard Clip
  *
  * @param startMemoryAddress DSP memory address
  * @param highThreshold High threshold (0.0 to 1.0)
@@ -288,6 +311,8 @@ void SigmaDSP::hardClip(uint16_t startMemoryAddress, float highThreshold, float 
 
 /**
  * @brief Controls a soft clip block with adjustable curve
+ * SigmaStudio path:
+ * Non Linear Processors > Clippers > Soft Clip > Standard Cubic
  *
  * @param startMemoryAddress DSP memory address
  * @param alpha Clipping coefficient (0.1 to 10.0)
@@ -303,6 +328,8 @@ void SigmaDSP::softClip(uint16_t startMemoryAddress, float alpha)
 
 /**
  * @brief Controls a DC source block
+ * SigmaStudio path:
+ * Sources > DC > DC Input Entry
  *
  * @param startMemoryAddress DSP memory address
  * @param level DC value level range (-1.0 to 1.0)
@@ -315,6 +342,8 @@ void SigmaDSP::dcSource(uint16_t startMemoryAddress, float level)
 
 /**
  * @brief Controls a sine wave source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Sine Tone
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sine wave frequency in [Hz]
@@ -328,7 +357,9 @@ void SigmaDSP::sineSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a sine wave source block
- *
+ * SigmaStudio path:
+ * Sources > Oscillators > Sine Tone
+
  * @param startMemoryAddress DSP memory address
  * @param frequency Sine wave frequency in [Hz]
  */
@@ -343,6 +374,8 @@ void SigmaDSP::sineSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls a square wave source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Square Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Square wave frequency in [Hz]
@@ -352,6 +385,8 @@ void SigmaDSP::squareSource(uint16_t startMemoryAddress, float frequency) { sine
 
 /**
  * @brief Controls a sine wave source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Square Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Square wave frequency in [Hz]
@@ -361,6 +396,8 @@ void SigmaDSP::squareSource(uint16_t startMemoryAddress, int32_t frequency) { si
 
 /**
  * @brief Controls a sawtooth source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Sawtooth Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sawtooth frequency in [Hz]
@@ -375,6 +412,8 @@ void SigmaDSP::sawtoothSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a sawtooth source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Sawtooth Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Sawtooth frequency in [Hz]
@@ -390,6 +429,8 @@ void SigmaDSP::sawtoothSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls a triangle wave source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Triangle Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Triangle wave frequency in [Hz]
@@ -404,6 +445,8 @@ void SigmaDSP::triangleSource(uint16_t startMemoryAddress, float frequency)
 
 /**
  * @brief Controls a triangle wave source block
+ * SigmaStudio path:
+ * Sources > Oscillators > Triangle Wave
  *
  * @param startMemoryAddress DSP memory address
  * @param frequency Triangle wave frequency in [Hz]
@@ -419,6 +462,8 @@ void SigmaDSP::triangleSource(uint16_t startMemoryAddress, int32_t frequency)
 
 /**
  * @brief Controls an audio delay block
+ * SigmaStudio path:
+ * Basic DSP > DSP functions > Delay > Delay
  *
  * Delay ranges:
  * 0.0-42.6ms (ADAU170x) @ 48kHz;
@@ -450,6 +495,8 @@ void SigmaDSP::audioDelay(uint16_t startMemoryAddress, float delayMs)
 
 /**
  * @brief Controls a first order EQ block
+ * SigmaStudio path:
+ * Filters > First Order > General (1st order)
  *
  * @param startMemoryAddress DSP memory address
  * @param equalizer Equalizer parameter struct
@@ -509,6 +556,8 @@ void SigmaDSP::EQfirstOrder(uint16_t startMemoryAddress, firstOrderEQ_t &equaliz
 
 /**
  * @brief Controls a second order EQ block
+ * SigmaStudio path:
+ * Filters > Second Order > Single Precision > 1/2/N Ch > General (2nd order)
  *
  * @param startMemoryAddress DSP memory address
  * @param equalizer Equalizer parameter struct
@@ -776,7 +825,9 @@ void SigmaDSP::stateVariable(uint16_t startMemoryAddress, float frequency, float
 
 /**
  * @brief Calculates the curve and the other parameters of an RMS compressor block.
- *        Set ratio = 1 to disable compressor
+ * Set ratio = 1 to disable compressor
+ * SigmaStudio path:
+ * Dynamic Processors > RMS > Standard Resolution > Lower Range (-90 to +6 dB) > Post Gain > Mono/Stereo > No Ext Detector Input > RMS (gain)
  *
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
@@ -860,7 +911,9 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
 
 /**
  * @brief This function calculates the curve and the other parameters of a peak compressor block.
-          Set ratio = 1 to disable compressor
+ * Set ratio = 1 to disable compressor
+ * SigmaStudio path:
+ * Dynamic Processors > Peak > Standard Resolution > Lower Range (-90 to +6 dB) > Post Gain > Stereo > No Ext Detector Input > Peak (gain)
  *
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
