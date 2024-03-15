@@ -90,7 +90,18 @@ void SigmaDSP::mux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfI
   if(numberOfIndexes == 0)
     safeload_write(startMemoryAddress, index);
   else
-    demux(startMemoryAddress, index, numberOfIndexes);
+  {
+    uint8_t i = 0;
+    // Load leading zeros
+    for(; i < index; i++)
+      safeload_writeRegister(startMemoryAddress++, 0x00, false);
+    // Load index
+    i++;
+    safeload_writeRegister(startMemoryAddress++, 0x00800000, (i == numberOfIndexes ? true : false));
+    // Load tailing zeros
+    for(; i < numberOfIndexes; i++)
+      safeload_writeRegister(startMemoryAddress++, 0x00, (i == numberOfIndexes-1 ? true : false));
+  }
 }
 
 
