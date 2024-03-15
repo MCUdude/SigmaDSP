@@ -87,10 +87,10 @@ uint8_t SigmaDSP::ping()
  */
 void SigmaDSP::mux(uint16_t startMemoryAddress, uint8_t index, uint8_t numberOfIndexes)
 {
-  // Index number is actually not needed, but kept for compatibility with demux
-  (void)numberOfIndexes;
-
-  safeload_write(startMemoryAddress, index);
+  if(numberOfIndexes == 0)
+    safeload_write(startMemoryAddress, index);
+  else
+    demux(startMemoryAddress, index, numberOfIndexes);
 }
 
 
@@ -1193,6 +1193,8 @@ void SigmaDSP::writeRegisterBlock(uint16_t memoryAddress, uint16_t length, const
 
 /**
  * @brief Reads a DSP memory block
+ * SigmaStudio path:
+ * Basic DSP > DSP Functions > DSP Readback
  *
  * @param memoryAddress DSP memory address
  * @param readout Which register to read
