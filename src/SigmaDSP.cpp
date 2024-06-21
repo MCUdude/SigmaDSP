@@ -1107,7 +1107,7 @@ void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, float data, bool f
   safeload_writeRegister(memoryAddress, dataArray, finished);
 }
 
-#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP8266) || (defined(ARDUINO_ARCH_ESP32) && ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0))
   void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress, int16_t data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
 #else
   void SigmaDSP::safeload_writeRegister(uint16_t memoryAddress,     int data, bool finished) { safeload_writeRegister(memoryAddress, (int32_t)data, finished); }
