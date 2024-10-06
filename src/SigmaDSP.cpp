@@ -1000,6 +1000,106 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
 
 
 /**
+ * @brief This function calculates the curve and the other parameters of a 2 way crossover block.
+ * See https://ez.analog.com/dsp/sigmadsp/f/q-a/67050/how-to-calculate-the-coefficient-value-of-the-high-order-filter 
+ * and https://ez.analog.com/cfs-file/__key/telligent-evolution-components-attachments/00-396-01-00-00-23-33-96/FilterMathCalculations.pdf
+ * SigmaStudio path:
+ * Filters > Crossover > Single Precision > 2-Way > Crossover
+ *
+ * @param startMemoryAddress DSP memory address
+ * @param crossover Crossover parameter struct
+ */
+void SigmaDSP::crossover_2way(uint16_t startMemoryAddress, crossover_t &crossover)
+{
+  safeload_writeRegister(startMemoryAddress, crossover.lowInvert, true);
+  safeload_writeRegister(startMemoryAddress + 21, crossover.lowInvert, true);
+
+  uint16_t address1, address2;
+  if (crossover.type == parameters::crossoverType::lowpass) {
+    address1 = startMemoryAddress + 1;
+    address2 = startMemoryAddress + 22;
+  } else {
+    address1 = startMemoryAddress + 11;
+    address2 = startMemoryAddress + 32;
+  }
+
+  float coeff1[5] = { 0, 0, 0, 0, 0 };
+  float coeff2[5] = { 0, 0, 0, 0, 0 };
+
+  switch (crossover.filterType)
+  {
+  case parameters::crossoverFilterType::linkwitzRiley_12:
+    butterworths_1st(crossover, coeff1);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    break;
+
+  case parameters::crossoverFilterType::linkwitzRiley_24:
+    butterworths_2nd(crossover, coeff1);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    break;
+
+  case parameters::crossoverFilterType::linkwitzRiley_36:
+    butterworths_higher(crossover, 3, 0, coeff1);
+    butterworths_1st(crossover, coeff2);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    safeload_write(address2, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address2 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    break;
+
+  case parameters::crossoverFilterType::linkwitzRiley_48:
+    butterworths_higher(crossover, 4, 0, coeff1);
+    butterworths_higher(crossover, 4, 1, coeff2);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    safeload_write(address2, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address2 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    break;
+
+  case parameters::crossoverFilterType::butterworth_12:
+    butterworths_2nd(crossover, coeff1);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    break;
+
+  case parameters::crossoverFilterType::butterworth_18:
+    butterworths_higher(crossover, 3, 0, coeff1);
+    butterworths_1st(crossover, coeff2);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    break;
+
+  case parameters::crossoverFilterType::butterworth_24:
+    butterworths_higher(crossover, 4, 0, coeff1);
+    butterworths_higher(crossover, 4, 1, coeff2);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    break;
+
+  case parameters::crossoverFilterType::bessel_12:
+    bessel_2nd(crossover, coeff1);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    break;
+
+  case parameters::crossoverFilterType::bessel_18:
+    bessel_2nd(crossover, coeff1);
+    butterworths_1st(crossover, coeff2);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff2[0], coeff2[1], coeff2[2], coeff2[3], coeff2[4]);
+    break;
+
+  case parameters::crossoverFilterType::bessel_24:
+    bessel_2nd(crossover, coeff1);
+    safeload_write(address1, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    safeload_write(address1 + 5, coeff1[0], coeff1[1], coeff1[2], coeff1[3], coeff1[4]);
+    break;
+  default:
+    break;
+  }
+}
+
+/**
  * @brief Mutes the internal analog to digital converter in the DSP
  *
  * @param mute Mute state. Muted if true, unmuted if false
@@ -1271,6 +1371,163 @@ uint32_t SigmaDSP::readRegister(dspRegister reg, uint8_t numberOfBytes)
   return returnVal;
 }
 
+
+/// @brief Calculate 1st order butterworths filter
+/// @param crossover Crossover struct to calculate
+/// @param coefficients Coefficients array to store
+void SigmaDSP::butterworths_1st(crossover_t &crossover, float coefficients[5])
+{
+  float gain, omega, sn, cs, alpha;
+  float a0, a1, b0, b1;
+
+  gain = pow(10, (crossover.gain/20));
+  omega = 2 * PI * crossover.freq / FS;
+  sn = sin(omega);
+  cs = cos(omega);
+
+  a0 = sn + cs + 1;
+
+  if (crossover.type == parameters::crossoverType::lowpass)
+  {
+    a1 = (sn - cs - 1) / a0;
+    b0 = gain * sn / a0;
+    b1 = gain * sn / a0;
+  }
+  else  // highpass
+  {
+    a1 = (sn - cs - 1) / a0;
+    b0 = gain * (1 + cs) / a0;
+    b1 = -gain * (1 + cs) / a0;
+  }
+
+  coefficients[0] = b0;
+  coefficients[1] = b1;
+  coefficients[2] = a1;
+  coefficients[3] = 0;
+  coefficients[4] = 0;
+}
+
+
+/// @brief Calculate 2nd order butterworths filter
+/// @param crossover Crossover struct to calculate
+/// @param coefficients Coefficients array to store
+void SigmaDSP::butterworths_2nd(crossover_t &crossover, float coefficients[5])
+{
+  float omega, sn, cs, alpha;
+  float a0, a1, a2, b0, b1, b2;
+
+  omega = 2 * PI * crossover.freq / FS;
+  sn = sin(omega);
+  cs = cos(omega);
+  alpha = sn / (2 * (1 / pow(2, 0.5)));
+
+  if (crossover.type == parameters::crossoverType::lowpass)
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = (1 - cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = b1 / 2;
+    b2 = b0;
+  }
+  else  // highpass
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = -( 1 + cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = - b1 / 2;
+    b2 = b0;
+  }
+
+  coefficients[0] = b0;
+  coefficients[1] = b1;
+  coefficients[2] = a1;
+  coefficients[3] = b2;
+  coefficients[4] = a2;
+}
+
+
+/// @brief Calculate higher order butterworths filter
+/// @param crossover Crossover struct to calculate
+/// @param orderindex index of order to calculate
+/// @param i See (page 8) https://ez.analog.com/cfs-file/__key/telligent-evolution-components-attachments/00-396-01-00-00-23-33-96/FilterMathCalculations.pdf
+/// @param coefficients Coefficients array to store
+void SigmaDSP::butterworths_higher(crossover_t &crossover, uint8_t orderindex, uint8_t i, float coefficients[5])
+{
+  float omega, sn, cs, alpha, orderangle;
+  float a0, a1, a2, b0, b1, b2;
+
+  omega = 2 * PI * crossover.freq / FS;
+  sn = sin(omega);
+  cs = cos(omega);
+  orderangle = (PI / orderindex) * (i + 0.5);
+  alpha = sn / (2 * (1 / (2 * sin(orderangle))));
+
+  if (crossover.type == parameters::crossoverType::lowpass)
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = (1 - cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = b1 / 2;
+    b2 = b0;
+  }
+  else  // highpass
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = -( 1 + cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = -b1 / 2;
+    b2 = b0;
+  }
+
+  coefficients[0] = b0;
+  coefficients[1] = b1;
+  coefficients[2] = a1;
+  coefficients[3] = b2;
+  coefficients[4] = a2;
+}
+
+/// @brief Calculate 2nd order bessel filter
+/// @param crossover Crossover struct to calculate
+/// @param coefficients Coefficients array to store
+void SigmaDSP::bessel_2nd(crossover_t &crossover, float coefficients[5])
+{
+  float omega, sn, cs, alpha;
+  float a0, a1, a2, b0, b1, b2;
+
+  omega = 2 * PI * crossover.freq / FS;
+  sn = sin(omega);
+  cs = cos(omega);
+  alpha = sn / (2 * (1 / pow(3, 0.5)));
+
+  if (crossover.type == parameters::crossoverType::lowpass)
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = (1 - cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = b1 / 2;
+    b2 = b0;
+  }
+  else  // highpass
+  {
+    a0 = 1 + alpha;
+    a1 = -( 2 * cs) / a0;
+    a2 = (1 - alpha) / a0;
+    b1 = -( 1 + cs) / a0 * pow(10, (crossover.gain / 20));
+    b0 = - b1 / 2;
+    b2 = b0;
+  }
+
+  coefficients[0] = b0;
+  coefficients[1] = b1;
+  coefficients[2] = a1;
+  coefficients[3] = b2;
+  coefficients[4] = a2;
+}
 
 /**
  * @brief Converts a 5.23 float value to 5-byte HEX and stores it in the passed buffer

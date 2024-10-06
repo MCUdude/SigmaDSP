@@ -38,6 +38,29 @@ namespace parameters
     off,
     on,
   };   
+
+  enum crossoverLowInvert {
+    nonInvert = 1,
+    invert    = -1,
+  };
+
+  enum crossoverType {
+    lowpass,
+    highpass,
+  };
+
+  enum crossoverFilterType {
+    linkwitzRiley_12,
+    linkwitzRiley_24,
+    linkwitzRiley_36,
+    linkwitzRiley_48,
+    butterworth_12,
+    butterworth_18,
+    butterworth_24,
+    bessel_12,
+    bessel_18,
+    bessel_24,
+  };
 };
 
 
@@ -89,5 +112,14 @@ typedef struct secondOrderEQ_t
   uint8_t phase      = parameters::phase::deg_0;        // parameters::phase::deg_0/deg_180
   uint8_t state      = parameters::state::on;           // parameters::state::on/off
 } secondOrderEQ;
+
+typedef struct crossover_t
+{
+  float freq         = 250;  // Range 20-20000 [Hz]
+  float gain         = 0.0;  // Range +/-15 [dB]
+  int8_t lowInvert   = parameters::crossoverLowInvert::nonInvert;
+  uint8_t type       = parameters::crossoverType::lowpass;
+  uint8_t filterType = parameters::crossoverFilterType::butterworth_24;
+} crossover;
 
 #endif

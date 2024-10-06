@@ -126,6 +126,7 @@ class SigmaDSP
     void stateVariable(uint16_t startMemoryAddress,  float freq, float q);
     void compressorRMS(uint16_t startMemoryAddress,  compressor_t &compressor, bool withPostgain = true);
     void compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor, bool withPostgain = true);
+    void crossover_2way(uint16_t startMemoryAddress, crossover_t &crossover);
 
     // Hardware functions
     void muteADC(bool mute);
@@ -177,6 +178,12 @@ class SigmaDSP
 
 
   private:
+    // For crossover filter calculation
+    void butterworths_1st(crossover_t &crossover, float coefficients[5]);
+    void butterworths_2nd(crossover_t &crossover, float coefficients[5]);
+    void butterworths_higher(crossover_t &crossover, uint8_t orderindex, uint8_t i, float coefficients[5]);
+    void bessel_2nd(crossover_t &crossover, float coefficients[5]);
+
     // Wrapper template functions for safeload template
     template <typename Data1, typename... DataN>
     void safeload_write_wrapper(const Data1 &data1, const DataN &...dataN)
