@@ -119,7 +119,7 @@ typedef struct crossover_t
   float gain         = 0.0;  // Range +/-15 [dB]
   int8_t lowInvert   = parameters::crossoverLowInvert::nonInvert;
   uint8_t type       = parameters::crossoverType::lowpass;
-  uint8_t filterType = parameters::crossoverFilterType::butterworth_24;
+  uint8_t filterType = parameters::crossoverFilterType::linkwitzRiley_24;
 } crossover;
 
 #endif
