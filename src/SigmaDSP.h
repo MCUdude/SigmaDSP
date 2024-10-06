@@ -124,8 +124,8 @@ class SigmaDSP
     void EQsecondOrder(uint16_t startMemoryAddress,  secondOrderEQ_t &equalizer);
     void toneControl(uint16_t startMemoryAddress,    toneCtrl_t &toneCtrl);
     void stateVariable(uint16_t startMemoryAddress,  float freq, float q);
-    void compressorRMS(uint16_t startMemoryAddress,  compressor_t &compressor);
-    void compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor);
+    void compressorRMS(uint16_t startMemoryAddress,  compressor_t &compressor, bool withPostgain = true);
+    void compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor, bool withPostgain = true);
 
     // Hardware functions
     void muteADC(bool mute);

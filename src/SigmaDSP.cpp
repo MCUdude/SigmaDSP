@@ -843,7 +843,7 @@ void SigmaDSP::stateVariable(uint16_t startMemoryAddress, float frequency, float
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
  */
-void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compressor)
+void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compressor, bool withPostgain)
 {
   uint8_t i;
   uint8_t count;
@@ -902,9 +902,11 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
   safeload_writeRegister(startMemoryAddress++, storeData, true);
 
   //#ifdef COMPRESSORWITHPOSTGAIN
+  if (withPostgain) {
     postgain_par = pow(10, compressor.postgain/20);
     floatToFixed(postgain_par, storeData);
     safeload_writeRegister(startMemoryAddress++, storeData, true);
+  }
   //#endif
 
   // Hold
@@ -929,7 +931,7 @@ void SigmaDSP::compressorRMS(uint16_t startMemoryAddress, compressor_t &compress
  * @param startMemoryAddress DSP memory address
  * @param compressor Compressor parameter struct
  */
-void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor)
+void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compressor, bool withPostgain)
 {
   uint8_t i;
   uint8_t count;
@@ -977,9 +979,11 @@ void SigmaDSP::compressorPeak(uint16_t startMemoryAddress, compressor_t &compres
   }
 
  // #ifdef COMPRESSORWITHPOSTGAIN
+  if (withPostgain) {
     postgain_par = pow(10, compressor.postgain/40);
     floatToFixed(postgain_par, storeData);
     safeload_writeRegister(startMemoryAddress++, storeData, true);
+  }
   //#endif
 
   // Hold
