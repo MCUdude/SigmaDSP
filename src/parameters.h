@@ -45,8 +45,8 @@ namespace parameters
   };
 
   enum crossoverType {
-    lowpass,
-    highpass,
+    crossoverLowpass,
+    crossoverHighpass,
   };
 
   enum crossoverFilterType {
@@ -118,7 +118,7 @@ typedef struct crossover_t
   float freq         = 250;  // Range 20-20000 [Hz]
   float gain         = 0.0;  // Range +/-15 [dB]
   int8_t lowInvert   = parameters::crossoverLowInvert::nonInvert;
-  uint8_t type       = parameters::crossoverType::lowpass;
+  uint8_t type       = parameters::crossoverType::crossoverLowpass;
   uint8_t filterType = parameters::crossoverFilterType::linkwitzRiley_24;
 } crossover;
 
