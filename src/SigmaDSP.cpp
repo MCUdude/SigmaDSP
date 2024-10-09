@@ -1015,7 +1015,7 @@ void SigmaDSP::crossover_2way(uint16_t startMemoryAddress, crossover_t &crossove
   safeload_writeRegister(startMemoryAddress + 21, crossover.lowInvert, true);
 
   uint16_t address1, address2;
-  if (crossover.type == parameters::crossoverType::lowpass) {
+  if (crossover.type == parameters::crossoverType::crossoverLowpass) {
     address1 = startMemoryAddress + 1;
     address2 = startMemoryAddress + 22;
   } else {
@@ -1387,7 +1387,7 @@ void SigmaDSP::butterworths_1st(crossover_t &crossover, float coefficients[5])
 
   a0 = sn + cs + 1;
 
-  if (crossover.type == parameters::crossoverType::lowpass)
+  if (crossover.type == parameters::crossoverType::crossoverLowpass)
   {
     a1 = (sn - cs - 1) / a0;
     b0 = gain * sn / a0;
@@ -1421,7 +1421,7 @@ void SigmaDSP::butterworths_2nd(crossover_t &crossover, float coefficients[5])
   cs = cos(omega);
   alpha = sn / (2 * (1 / pow(2, 0.5)));
 
-  if (crossover.type == parameters::crossoverType::lowpass)
+  if (crossover.type == parameters::crossoverType::crossoverLowpass)
   {
     a0 = 1 + alpha;
     a1 = -( 2 * cs) / a0;
@@ -1464,7 +1464,7 @@ void SigmaDSP::butterworths_higher(crossover_t &crossover, uint8_t orderindex, u
   orderangle = (PI / orderindex) * (i + 0.5);
   alpha = sn / (2 * (1 / (2 * sin(orderangle))));
 
-  if (crossover.type == parameters::crossoverType::lowpass)
+  if (crossover.type == parameters::crossoverType::crossoverLowpass)
   {
     a0 = 1 + alpha;
     a1 = -( 2 * cs) / a0;
@@ -1503,7 +1503,7 @@ void SigmaDSP::bessel_2nd(crossover_t &crossover, float coefficients[5])
   cs = cos(omega);
   alpha = sn / (2 * (1 / pow(3, 0.5)));
 
-  if (crossover.type == parameters::crossoverType::lowpass)
+  if (crossover.type == parameters::crossoverType::crossoverLowpass)
   {
     a0 = 1 + alpha;
     a1 = -( 2 * cs) / a0;
