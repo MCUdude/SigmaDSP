@@ -7,6 +7,10 @@
 #include "parameters.h"
 #include "DSPEEPROM.h"
 
+#ifndef ESP_IDF_VERSION_VAL
+#define ESP_IDF_VERSION_VAL(x, y, z) 0
+#endif
+
 /**
  * @brief ADAU1701 hardware register constants
  *
